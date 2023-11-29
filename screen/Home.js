@@ -50,7 +50,7 @@ export default function Home({ navigation }) {
                         <Text style={{color: 'white', fontSize: 20, fontWeight: 700}}>Jonh Doe</Text>
                       <TouchableOpacity
                         style={{marginLeft:10, paddingTop: 10, alignItems: 'center', backgroundColor: 'white', borderRadius: 60, height: 60, width: 60 }}
-                        onPress={() => { navigation.navigate('Login') }} >
+                        onPress={() => { navigation.navigate('Profile') }} >
                         <Image style={{ height: 40, width: 40 }} source={require('../assets/temp_logo.png')} />
                     </TouchableOpacity>  
                     </View>

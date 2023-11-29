@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { Platform, SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import { Home, Notification, Record, RequestLog, Visualization, LoginPage } from './screen';
+import { Home, Notification, Record, RequestLog, Visualization, LoginPage, Register, Profile } from './screen';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, PrivateValueStore } from '@react-navigation/native';
@@ -78,6 +78,8 @@ export default function App() {
       <Stack.Navigator initialRouteName='Login' screenOptions={{ headerShown: false }} >
         <Stack.Screen name='Login' component={LoginPage} />
         <Stack.Screen name='loggedIn' component={LoggedIn} />
+        <Stack.Screen name='Register' component={Register} />
+        <Stack.Screen name='Profile' component={Profile} />
       </Stack.Navigator>
     </NavigationContainer>
     // </SafeAreaView>

@@ -49,8 +49,8 @@ export default function LoginPage({navigation}) {
                     </TouchableOpacity>
 
                     <View style={{ height: 40 }} />
-                    <Seperator />
-                    <TouchableOpacity style={styles.loginBtn} onPress={() => {navigation.navigate('loggedIn')}} >
+                    <View style={styles.separator} />
+                    <TouchableOpacity style={styles.loginBtn} onPress={() => {navigation.navigate('Register')}} >
                         <Text style={styles.loginText}>Sign up</Text>
                     </TouchableOpacity>
 
@@ -70,18 +70,19 @@ export default function LoginPage({navigation}) {
 
 
 ////////////////////////////////////////////////////////
-const seperatorStyles: ViewStyle = {
-    height: 1,
-    width: "60%",
-    backgroundColor: "#FFCE46",
-};
-const Seperator = () => <View style={seperatorStyles} />;
+
 const styles = StyleSheet.create({
     root: {
         flex: 1,
         width: null,
         height: null,
     },
+    separator: {
+        height: 2,
+        width:"80%",
+        alignSelf: 'center',
+        backgroundColor: "#fff",
+      },
     container: {
         flex: 1,
         backgroundColor: "#1F1B3C",
