@@ -33,11 +33,11 @@ class Calendar extends React.Component {
 }
 
 export default function Visualization() {
-  
+  //just mockup dataset naja
   const secondsData = [0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0,
-    // 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0,0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-    // 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  //  0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0,
+    1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0,0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0,
   ];
 
   const totalSeconds = secondsData.length;
@@ -79,7 +79,7 @@ export default function Visualization() {
 
   return (
     <ImageBackground source={bg} style={styles.container}>
-      <View>
+      <ScrollView>
       <View style={[styles.bglight, { height: 30 }]}>
         <Text style={{ color: 'white',fontSize: 16,fontWeight: 'bold',}}>
           {selectedDate ? selectedDate.toLocaleDateString() : 'None'}
@@ -110,18 +110,39 @@ export default function Visualization() {
       </ScrollView>
       {/* Snore timestamp  ex. everytime dataset identify as snore sound*/}
       <View style={styles.timestampContainer}>
-        {secondsData.map((value, index) => (
-          value === 1 && (
+        {secondsData.map((value, index) => {
+          if (value === 1 && (index === 0 || secondsData[index - 1] === 0)) {
+            // If it's the start of a continuous sequence of '1'
+            const startTime = calculateTimestamp(index);
+            let duration = 1;
+
+            // Loop through subsequent elements to calculate the duration
+            for (let i = index + 1; i < secondsData.length; i++) {
+              if (secondsData[i] === 1) {
+                duration += 1;
+              } else {
+                break;
+              }
+            }
+            // if (duration > 1) { //if wwe want to show anything more than 1 sec
+            return (
             <View>
-              <Text key={index} style={styles.timestampText}>
-                {calculateTimestamp(index)}
-              </Text>
-              <View style={styles.seperator}/>
+                <View key={index} style={{ flex: 1,flexDirection: 'row'}}>
+                    <Text style={styles.timestampText}>{startTime}</Text>
+                    <View style={{ flex: 1, alignItems: 'center' }}>
+                    <Text style={styles.durationText}>Duration: {duration} sec</Text>
+                    </View>
+                  </View>
+              <View style={styles.separator} />
             </View>
-          )
-        ))}
+            );
+          //}
+        }
+          return null; // If the current value is not 1 or the start of a sequence, return null
+        })}
       </View>
-      </View>
+      </ScrollView>
+      <View style={{ height: 95 }} />
     </ImageBackground>
   );
 }
@@ -131,12 +152,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#231E30',
     alignItems: 'stretch',
-    paddingTop: 80,
+    paddingTop: 30,
   },
-    seperator: {
-    height: 1,
-    width: "60%",
-    backgroundColor: "#FFCE46",
+    separator: {
+    height: 2,
+    width:"80%",
+    alignSelf: 'center',
+    backgroundColor: "#fff",
   },
   chartContainer: {
     flex: 1,
@@ -156,9 +178,18 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   timestampText: {
-    color: 'white',
+    color: '#FFCE46',
     fontSize: 24,
-    margin: 'auto',
+    // textAlign:'left',
+    marginLeft: 50,
+    padding: 3,
+    justifyContent: 'space-around',
+  },
+  durationText: {
+    color: '#fff',
+    fontSize: 24,
+    // textAlign:'left',
+    padding: 3,
     justifyContent: 'space-around',
   },
 });
