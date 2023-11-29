@@ -1,6 +1,6 @@
 import React , { useState} from "react";
 import { View, Text, StyleSheet, ImageBackground,TextInput, Button } from "react-native";
-import waveBG from '../assets/wave2layer.png';
+import waveBG from '../assets/top-bottom-bg.png';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 
