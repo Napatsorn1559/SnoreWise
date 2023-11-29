@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 10,
         fontSize: 16,
-        fontFamily: "Helvetica",
+        // fontFamily: "Helvetica",
         fontWeight: 'bold',
         color: 'white'
     },
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     },
     loginText: {
         fontSize: 16,
-        fontFamily: "Helvetica",
+        // fontFamily: "Helvetica",
         fontWeight: 'bold',
     }
 });

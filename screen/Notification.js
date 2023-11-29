@@ -1,7 +1,7 @@
 import React from "react";
 import { StatusBar } from 'expo-status-bar';
 import { View, Text, StyleSheet, SafeAreaView, ImageBackground } from "react-native";
-import waveBG from '../assets/background.png';
+import waveBG from '../assets/wave2layer.png';
 
 export default function Notification() {
     return (
