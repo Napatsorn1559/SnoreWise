@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 import { Audio } from 'expo-av';
 import {
@@ -16,6 +16,7 @@ import ky from 'ky';
 export default function App() {
     const [recording, setRecording] = React.useState();
     const [recordings, setRecordings] = React.useState([]);
+    
 
     async function startRecording() {
         try {
@@ -65,6 +66,7 @@ export default function App() {
         });
 
         setRecordings(allRecordings);
+        // getLatestRec()
     }
 
     function getDurationFormatted(milliseconds) {
@@ -77,35 +79,18 @@ export default function App() {
         console.log('post audio called');
         let url = 'http://test-snorwise-env.eba-iz52pgnf.us-east-1.elasticbeanstalk.com/send-audio';
         let filename = uri.split("/").pop();
-        // try {
-        //     const response = await FileSystem.uploadAsync(url, uri, {
-        //         fieldName: 'audio',
-        //         httpMethod: 'POST',
-        //         uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-        //         mimeType: 'audio/wav'
-        //     });
-        //     console.log(JSON.stringify(response));
-        // } catch (err) { console.error(err); }
+        let nameNoWav = filename.split(".")[0];
 
         const FormData = require('form-data');
-        let data = new FormData();
-        data.append('audio', {
-            uri: uri,
-            name : filename,
-            type: 'audio/wav'
+        const audioContent = await FileSystem.readAsStringAsync(uri, {
+            encoding: FileSystem.EncodingType.Base64,
         });
-        console.log(JSON.stringify(data));
-
-
-        // let config = {
-        //     method: 'post',
-        //     maxBodyLength: Infinity,
-        //     url: 'http://test-snorwise-env.eba-iz52pgnf.us-east-1.elasticbeanstalk.com/send-audio',
-        //     headers: {
-        //         ...data.getHeaders()
-        //     },
-        //     data: data
-        // };
+        let data = new FormData();
+        data.append('audioFile', {
+            uri: `data:audio/wav;base64,${audioContent}`,
+            name: `userID-${nameNoWav}.wav`,
+            type: 'audio/wav',
+        });
 
         try {
             const response = await axios.post(url, data, {
@@ -115,14 +100,20 @@ export default function App() {
         } catch (error) {
             console.log(error);
         }
+    }
 
 
+    function getLatestRec(){
+        // Get the latest record based on the '_key' property
+        const latestRecord = recordings.reduce((latest, current) => {
+            return current.sound._key > latest.sound._key ? current : latest;
+        }, recordings[0]);
+        console.log('_key --> ' ,latestRecord.sound._key);
+        console.log(JSON.stringify(latestRecord.file));
     }
 
     function getRecordingLines() {
         return recordings.map((recordingLine, index) => {
-            console.log('uri ->', recordingLine.file);
-
             return (
                 <View key={index} style={styles.row}>
                     <Text style={styles.fill}>
@@ -130,7 +121,7 @@ export default function App() {
                     </Text>
                     <Button onPress={() => recordingLine.sound.replayAsync()} title="Play"></Button>
                     <Button onPress={() => postAudio(recordingLine.file)} title="post"></Button>
-                    {/* <Button onPress={() => Sharing.shareAsync(recordingLine.file)} title="share"></Button> */}
+                    <Button onPress={() => Sharing.shareAsync(recordingLine.file)} title="share"></Button>
                 </View>
             );
         });
