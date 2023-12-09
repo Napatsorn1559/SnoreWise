@@ -16,7 +16,31 @@ import ky from 'ky';
 export default function App() {
     const [recording, setRecording] = React.useState();
     const [recordings, setRecordings] = React.useState([]);
-    
+
+
+    useEffect(() => {
+        if (recordings.length > 0) {
+            getLatestRec();
+        }
+    }, [recordings]);
+
+    useEffect(() => {
+        let intervalId;
+
+        if (recording) {
+            intervalId = setInterval(() => {
+                cutRecord();
+            }, 600000);
+        }
+
+        return () => {
+            // Cleanup the interval when the component unmounts or when recording is stopped
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+        };
+    }, [recording]);
+
 
     async function startRecording() {
         try {
@@ -103,14 +127,23 @@ export default function App() {
     }
 
 
-    function getLatestRec(){
+    function getLatestRec() {
         // Get the latest record based on the '_key' property
         const latestRecord = recordings.reduce((latest, current) => {
             return current.sound._key > latest.sound._key ? current : latest;
         }, recordings[0]);
-        console.log('_key --> ' ,latestRecord.sound._key);
+        console.log('_key --> ', latestRecord.sound._key);
         console.log(JSON.stringify(latestRecord.file));
+        postAudio(latestRecord.file);
     }
+
+    async function cutRecord() {
+        await stopRecording().then(setTimeout(() => {
+            startRecording();
+        }, 500));
+    }
+
+
 
     function getRecordingLines() {
         return recordings.map((recordingLine, index) => {
@@ -134,6 +167,10 @@ export default function App() {
     return (
         <View style={styles.container}>
             <Button title={recording ? 'Stop Recording' : 'Start Recording\n\n\n'} onPress={recording ? stopRecording : startRecording} />
+            {/* <Button title='start record' onPress={startRecording}></Button> */}
+            {/* <Button title='stop record' onPress={stopRecording}></Button> */}
+            <Button title='cut record' onPress={cutRecord}></Button>
+
             {getRecordingLines()}
             <Button title={recordings.length > 0 ? '\n\n\nClear Recordings' : ''} onPress={clearRecordings} />
         </View>
