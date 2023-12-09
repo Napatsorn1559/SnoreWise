@@ -18,6 +18,30 @@ import background from '../assets/background.png';
 export default function LoginPage({navigation}) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+
+    const handleLogin = async () => {
+        try{
+            const response = await fetch("localhost:9000", {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                email: username,
+                password: password,
+            }),
+        });
+        const data = await response.json();
+        if(response.ok){
+            navigation.navigate("loggedIn");
+        }else{
+            console.error(data.error || "Login failed");
+        }
+    }catch(error){
+        console.error("Error", error.message);
+    }
+};
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
             <View style={styles.root}>
@@ -26,7 +50,10 @@ export default function LoginPage({navigation}) {
                     style={styles.container}
                     source={background}
                 >
-                    <Image style={styles.image} source={require("../assets/temp_logo.png")} />
+                    <Image 
+                        style={styles.image} 
+                        source={require("../assets/temp_logo.png")} 
+                    />
                     <View style={styles.inputView}>
                         <TextInput
                             style={styles.TextInput}
@@ -44,13 +71,17 @@ export default function LoginPage({navigation}) {
                             onChangeText={(password) => setPassword(password)}
                         />
                     </View>
-                    <TouchableOpacity style={styles.loginBtn}onPress={() => {navigation.navigate('loggedIn')}} >
+                    <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
                         <Text style={styles.loginText}>Log in</Text>
                     </TouchableOpacity>
 
                     <View style={{ height: 40 }} />
                     <View style={styles.separator} />
-                    <TouchableOpacity style={styles.loginBtn} onPress={() => {navigation.navigate('Register')}} >
+                    <TouchableOpacity 
+                        style={styles.loginBtn} 
+                        onPress={() => {navigation.navigate('Register');
+                        }}
+                    >
                         <Text style={styles.loginText}>Sign up</Text>
                     </TouchableOpacity>
 
