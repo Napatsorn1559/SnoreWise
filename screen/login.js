@@ -71,7 +71,7 @@ export default function LoginPage({navigation}) {
                             onChangeText={(password) => setPassword(password)}
                         />
                     </View>
-                    <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
+                    <TouchableOpacity style={styles.loginBtn} onPress={() => {navigation.navigate('loggedIn')}}>
                         <Text style={styles.loginText}>Log in</Text>
                     </TouchableOpacity>
 

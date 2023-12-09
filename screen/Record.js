@@ -30,7 +30,7 @@ export default function App() {
         if (recording) {
             intervalId = setInterval(() => {
                 cutRecord();
-            }, 600000);
+            }, 600000); //10minutes
         }
 
         return () => {
@@ -169,7 +169,7 @@ export default function App() {
             <Button title={recording ? 'Stop Recording' : 'Start Recording\n\n\n'} onPress={recording ? stopRecording : startRecording} />
             {/* <Button title='start record' onPress={startRecording}></Button> */}
             {/* <Button title='stop record' onPress={stopRecording}></Button> */}
-            <Button title='cut record' onPress={cutRecord}></Button>
+            {/* <Button title='cut record' onPress={cutRecord}></Button> */}
 
             {getRecordingLines()}
             <Button title={recordings.length > 0 ? '\n\n\nClear Recordings' : ''} onPress={clearRecordings} />
