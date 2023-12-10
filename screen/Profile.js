@@ -102,9 +102,10 @@ const styles = StyleSheet.create({
         paddingVertical:30,
     },
       logoutBtn: {
-        width: "10%",
+        width: "20%",
         borderRadius: 25,
-        height: 20,
+        height: 25,
+        padding:5,
         alignItems: "center",
         justifyContent: "center",
         marginRight: 20,
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#FFCE46",
     },
     logoutText: {
-        fontSize: 10,
+        fontSize: 13,
         // fontFamily: "Helvetica",
         fontWeight: 'bold',
     },
@@ -139,6 +140,7 @@ const styles = StyleSheet.create({
     },
     titleText:{
         fontSize: 18,
+        marginBottom:8,
         color: '#231E30',
         fontWeight: 'bold',
         textAlign:"left",
