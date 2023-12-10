@@ -209,9 +209,6 @@ export default function App() {
                 {/* <Button title={recording ? 'Stop Recording' : 'Start Recording\n\n\n'} onPress={recording ? stopRecording : startRecording} /> */}
                 {/* {getRecordingLines()}
                 <Button title={recordings.length > 0 ? '\n\n\nClear Recordings' : ''} onPress={clearRecordings} /> */}
-                <View style={[styles.bglight,{padding: 5, marginBottom:10}]}>
-                <Text style={styles.statusText}>{date.toLocaleDateString().slice(0, -2)}</Text>
-                </View>
                 <ImageBackground source={waveLine} style={{ width: '100%', alignItems: 'center' }}>
                     <View style={[styles.recordButtonBack,{backgroundColor: recording? 'rgba(79, 245, 39, 0.5)': 'rgba(211, 190, 11, 0.5)'}]}>
                         <TouchableOpacity style={styles.recordButton} onPress={recording ? stopRecording : startRecording}>
@@ -220,10 +217,8 @@ export default function App() {
                     </View>
                 </ImageBackground>
                 <Text style={styles.statusText}>
-                    {recording ? 'click to stop record' : 'click to start record'}
+                    {recording ? 'stop record' : 'start record'}
                 </Text>
-  
-
             </ImageBackground>
         </View>
     );

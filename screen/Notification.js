@@ -22,7 +22,7 @@ export default function Notification() {
                     </View>
                     <Text style={{ color: 'white' }}>your snoring result is in normal level </Text>
                 </View>
-                <View style={[styles.notiBox, { backgroundColor: '#8F3535' }]}>
+                <View style={[styles.notiBox, { backgroundColor: 'rgba(187, 45, 45, 0.8)' }]}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'white', marginBottom: 5 }}>Caution !</Text>
                         <Text style={{ fontSize: 15, fontWeight: 'bold', color: 'white' }}>19/11/2023</Text>
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
         marginBottom: 20
     },
     notiBox: {
-        backgroundColor: '#8696BC',
+        backgroundColor: 'rgba(201,201,201,0.8)',
         marginVertical: 10,
         marginHorizontal: 20,
         paddingVertical: 15,
