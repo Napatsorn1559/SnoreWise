@@ -25,7 +25,7 @@ const LoggedIn = () => {
             )
           }
         }} />
-      <Tab.Screen name="Visualization" component={Visualization}
+      {/* <Tab.Screen name="Visualization" component={Visualization}
         options={{
           tabBarIcon: ({ focused }) => {
             return (
@@ -34,7 +34,7 @@ const LoggedIn = () => {
               </View>
             )
           }
-        }} />
+        }} /> */}
       <Tab.Screen name="Record" component={Record}
         options={{
           tabBarIcon: ({ focused }) => {
@@ -47,7 +47,7 @@ const LoggedIn = () => {
             )
           }
         }} />
-      <Tab.Screen name="Request Log" component={RequestLog}
+      {/* <Tab.Screen name="Request Log" component={RequestLog}
         options={{
           tabBarIcon: ({ focused }) => {
             return (
@@ -56,18 +56,18 @@ const LoggedIn = () => {
               </View>
             )
           }
-        }} />
-         {/* <Tab.Screen name="profile" component={Profile}
+        }} /> */}
+         <Tab.Screen name="profile" component={Profile}
         options={{
           tabBarIcon: ({ focused }) => {
             return (
               <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                <Ionicons name="person-outline" size={iconSize} color={focused ? 'white' : 'black'} />
+                <MaterialCommunityIcons name="account-circle-outline" size={iconSize} color={focused ? 'white' : 'black'} />
               </View>
             )
           }
-        }} /> */}
-      <Tab.Screen name="Notification" component={Notification}
+        }} />
+      {/* <Tab.Screen name="Notification" component={Notification}
         options={{
           tabBarIcon: ({ focused }) => {
             return (
@@ -78,7 +78,7 @@ const LoggedIn = () => {
           },
           tabBarBadge: 3
         }}
-      />
+      /> */}
     </Tab.Navigator>
   )
 }
@@ -131,15 +131,17 @@ const styles = StyleSheet.create({
     border: 'none',
     tabBarShowLabel: false,
     headerShown: false,
+    margin:10,
     tabBarStyle: {
       position: 'absolute',
       bottom: 0,
       right: 0,
       left: 0,
       elevation: 0,
-      height: 85,
+      height: 75,
       backgroundColor: 'rgba(231, 213, 57, 0.8)',
-      borderRadius: 20,
+      borderTopLeftRadius:20,
+      borderTopRightRadius:20,
     }
   }
 });

@@ -9,6 +9,7 @@ import {
     TouchableOpacity,
     TouchableWithoutFeedback,
     Keyboard,
+    ScrollView,
 } from "react-native";
 import bg from '../assets/wave2layer.png';
 import { currentUserId, currentUsername } from "../ApiState";
@@ -43,6 +44,7 @@ export default function Profile({ navigation }) {
     let bdate = new Date(profile.birthday)
 
     return (
+        
         <ImageBackground source={bg} style={styles.container}>
             <View style={{ flex: 1, flexDirection: "column" }}>
                 <View style={styles.top}>
@@ -58,6 +60,7 @@ export default function Profile({ navigation }) {
                     <Text style={{ color: 'white', fontSize: 20, fontWeight: 700 }}>{profile.username}</Text>
                 </View>
                 <View style={styles.bglight}>
+                    
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>Name</Text>
                         <Text style={styles.Inputtext}>{profile.firstname} {profile.lastname}</Text>
@@ -93,7 +96,6 @@ export default function Profile({ navigation }) {
                 </View>
             </View>
 
-
         </ImageBackground>
     )
 }
@@ -123,9 +125,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.6)',
         alignItems: 'stretch',
         justifyContent: 'center',
-        borderRadius: 20,
+        borderTopLeftRadius:20,
+        borderTopRightRadius:20,
         padding: 10,
-        paddingVertical: 30,
+        paddingTop:20,
+        paddingBottom:80,
     },
     logoutBtn: {
         width: "20%",
@@ -144,7 +148,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     image: {
-        marginBottom: 10,
+        // marginBottom: 10,
     },
     inputBox: {
         // backgroundColor: 'rgba(255, 255, 255, 0.3)',
