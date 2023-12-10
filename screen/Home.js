@@ -4,38 +4,12 @@ import { StyleSheet, Text, View, Button, ImageBackground, TouchableOpacity, Imag
 import bg from '../assets/background.png';
 import CalendarPicker from 'react-native-calendar-picker';
 import { MaterialCommunityIcons, Octicons, Entypo, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
-
-class Calendar extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            selectedStartDate: null,
-        };
-        this.onDateChange = this.onDateChange.bind(this);
-    }
-
-    onDateChange(date) {
-        this.setState({
-            selectedStartDate: date,
-        });
-
-        this.props.onDateChange(date);
-    }
-
-    render() {
-        const { selectedStartDate } = this.state;
-
-        return (
-            <View style={{ marginBottom: 10 }}>
-                <CalendarPicker textStyle={{ color: 'white' }} onDateChange={this.onDateChange} />
-            </View>
-        )
-    }
-}
-
+//import recoil state
+import { useRecoilState } from 'recoil';
+import { currentDate, currentUserId } from '../ApiState';
 
 export default function Home({ navigation }) {
-    const [selectedDate, setSelectedDate] = React.useState(new Date());
+    const [selectedDate, setSelectedDate] = useRecoilState(currentDate);
     const handleDateChange = (date) => {
         setSelectedDate(date);
     }
@@ -57,18 +31,25 @@ export default function Home({ navigation }) {
                     
                 </View>
 
-                <Calendar onDateChange={handleDateChange} />
+                <CalendarPicker textStyle={{ color: 'white' }} onDateChange={handleDateChange} selectedDayColor="yellow" />
                 <View style={[styles.bglight, { height: 30,}]}>
-                    <Text style={{ color: 'white' }}>{selectedDate ? selectedDate.toString() : 'None'}</Text>
+                    <Text style={{ color: 'white' }}>{selectedDate ? selectedDate.toString().slice(0,-17) : 'None'}</Text>
                 </View>
 
                 <View style={{ paddingVertical: 10 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <View style={{ flexDirection: 'row', padding: 10 }}>
+                        {/* <View style={{ flexDirection: 'row', padding: 10 }}>
                             <MaterialCommunityIcons name="sleep" size={50} color="yellow" />
                             <View style={{ marginLeft: 20, justifyContent: 'space-evenly' }}>
                                 <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>14 min</Text>
                                 <Text style={{ color: 'white' }}>snoring </Text>
+                            </View>
+                        </View> */}
+                        <View style={{ flexDirection: 'row', padding: 10, paddingRight: 30 }}>
+                            <Octicons name="graph" size={45} color="yellow" />
+                            <View style={{ marginLeft: 20, justifyContent: 'space-evenly' }}>
+                                <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>30 times</Text>
+                                <Text style={{ color: 'white' }}>intensity </Text>
                             </View>
                         </View>
                         <View style={{ flexDirection: 'row', padding: 10, paddingRight: 30 }}>
@@ -79,7 +60,7 @@ export default function Home({ navigation }) {
                             </View>
                         </View>
                     </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <View style={{ flexDirection: 'row', padding: 10 }}>
                             <MaterialCommunityIcons name="sleep-off" size={50} color="yellow" />
                             <View style={{ marginLeft: 20, justifyContent: 'space-evenly' }}>
@@ -94,7 +75,7 @@ export default function Home({ navigation }) {
                                 <Text style={{ color: 'white' }}>index </Text>
                             </View>
                         </View>
-                    </View>
+                    </View> */}
                 </View>
 
                 <View  style={[{flexDirection: 'row', justifyContent: 'space-evenly', height:100}, styles.bglight]}>
