@@ -20,27 +20,34 @@ export default function LoginPage({navigation}) {
     const [password, setPassword] = useState("");
 
     const handleLogin = async () => {
-        try{
-            const response = await fetch("localhost:9000", {
-                method: "POST",
-                headers: {
-                "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                email: username,
-                password: password,
-            }),
-        });
-        const data = await response.json();
-        if(response.ok){
-            navigation.navigate("loggedIn");
-        }else{
-            console.error(data.error || "Login failed");
+        try {
+           const response = await fetch("http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/login", {
+              method: "POST",
+              headers: {
+                 "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                 email: username,
+                 password: password,
+              }),
+           });
+     
+           if (!response.ok) {
+              const data = response.ok ? await response.json() : {};
+              console.error(data.error || "Login failed");
+              return;
+           }
+     
+           console.log("Response data:", await response.json());
+           console.log("Login successful");
+           // Navigate to "LoggedIn" page
+           navigation.navigate('LoggedIn');
+        } catch (error) {
+           console.error("Error", error.message);
         }
-    }catch(error){
-        console.error("Error", error.message);
-    }
-};
+     };
+     
+     
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -71,7 +78,10 @@ export default function LoginPage({navigation}) {
                             onChangeText={(password) => setPassword(password)}
                         />
                     </View>
-                    <TouchableOpacity style={styles.loginBtn} onPress={() => {navigation.navigate('loggedIn')}}>
+                    <TouchableOpacity 
+                        style={styles.loginBtn} 
+                        // onPress={() => handleLogin()}>
+                        onPress={() => {navigation.navigate('loggedIn')}}>
                         <Text style={styles.loginText}>Log in</Text>
                     </TouchableOpacity>
 
