@@ -11,6 +11,9 @@ import {
   StatusBar,
 } from "react-native";
 import background from "../assets/background.png";
+import { useNavigation } from '@react-navigation/native';
+import { AntDesign } from '@expo/vector-icons';
+
 
 export default function Register({ navigation }) {
   const [step, setStep] = useState(1);
@@ -26,6 +29,31 @@ export default function Register({ navigation }) {
   });
 
   const handleNext = () => {
+
+    // Check if any required field is empty
+  // if ( !formData.username || !formData.password || !formData.email) {
+  //   alert("Please fill in all required fields");
+  //   return;
+  // }
+
+    const getEmptyFields = () => {
+      const requiredFields = ["username", "email", "password", "confirmPassword"];
+      return requiredFields.filter(field => !formData[field]);
+    };
+
+    const emptyFields = getEmptyFields();
+
+    if (emptyFields.length > 0) {
+      alert(`Please fill in the ${emptyFields.join(", ")}`);
+      return;
+    }
+
+    // check confirm password
+    if (step === 1 && formData.password !== formData.confirmPassword) {
+      alert("Password and Confirm Password must match");
+      return;
+    }
+
     setStep(step + 1);
 
     // Clear the corresponding value in formData
@@ -40,11 +68,28 @@ export default function Register({ navigation }) {
   };
 
   const handleFinish = () => {
-    // Send formData to your API or perform any required action
+
+      // Check if any required field is empty
+    const getEmptyFields = () => {
+      const requiredFields = ["username", "email", "password", "confirmPassword"];
+      if (step === 2) {
+        requiredFields.push("firstname", "lastname", "gender", "birthday");
+      }
+      return requiredFields.filter(field => !formData[field]);
+    };
+
+    const emptyFields = getEmptyFields();
+
+    if (emptyFields.length > 0) {
+      alert(`Please fill in the ${emptyFields.join(", ")}`);
+      return;
+    }
+ 
     console.log("Form Data:", formData);
+    alert("Registration Sucessful \nPlease login with created account");
     //postRegis(username, email, password, firstName, lastName, gender, dateOfBirth);
     postRegis(formData);
-    // navigation.navigate("loggedIn");
+    navigation.navigate("Login");
   };
 
   const getStepField = (currentStep) => {
@@ -59,12 +104,19 @@ export default function Register({ navigation }) {
   };
 
   const renderStepContent = () => {
+
+    const { goBack } = useNavigation();
+
     switch (step) {
       case 1:
         return (
           <View style={styles.root}>
+
+            <TouchableOpacity style={styles.backButton} onPress={() => goBack()}>
+              <AntDesign name="arrowleft" size={24} color="white" />
+            </TouchableOpacity>
+
             <Text style={styles.title}>Step 1: Account Information</Text>
-            
             <Text style={{color: 'white', fontSize: 20, fontWeight: 700}}>Username</Text>
               <View style={styles.inputView}>
               <TextInput
@@ -312,5 +364,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "white",
+  },
+  backButton: {
+    position: 'absolute',
+    top: 110,
+    left: 0,
+    zIndex: 1,
   },
 });
