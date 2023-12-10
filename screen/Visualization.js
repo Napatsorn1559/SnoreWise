@@ -1,10 +1,12 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { Text, View, StyleSheet, Dimensions, ImageBackground, ScrollView } from "react-native";
 import { LineChart } from 'react-native-chart-kit';
 import CalendarPicker from 'react-native-calendar-picker';
 import bg from '../assets/wave2layer.png';
 
+
 class Calendar extends React.Component {
+    
   constructor(props) {
       super(props);
       this.state = {
@@ -39,6 +41,7 @@ export default function Visualization() {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0,
   ];
+  
 
   const totalSeconds = secondsData.length;
   const secondsInAnHour = 3600;

@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, PrivateValueStore } from '@react-navigation/native';
 import { MaterialIcons, Foundation, MaterialCommunityIcons } from '@expo/vector-icons';
+import { RecoilRoot } from 'recoil';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -73,16 +74,17 @@ const LoggedIn = () => {
 }
 export default function App() {
   return (
-    // <SafeAreaView style={{flex:1}}>
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName='Login' screenOptions={{ headerShown: false }} >
-        <Stack.Screen name='Login' component={LoginPage} />
-        <Stack.Screen name='loggedIn' component={LoggedIn} />
-        <Stack.Screen name='Register' component={Register} />
-        <Stack.Screen name='Profile' component={Profile} />
-      </Stack.Navigator>
-    </NavigationContainer>
-    // </SafeAreaView>
+    <RecoilRoot>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName='Login' screenOptions={{ headerShown: false }} >
+          <Stack.Screen name='Login' component={LoginPage} />
+          <Stack.Screen name='loggedIn' component={LoggedIn} />
+          <Stack.Screen name='Register' component={Register} />
+          <Stack.Screen name='Profile' component={Profile} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </RecoilRoot>
+
   );
 }
 
