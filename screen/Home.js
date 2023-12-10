@@ -5,8 +5,8 @@ import bg from '../assets/background.png';
 import CalendarPicker from 'react-native-calendar-picker';
 import { MaterialCommunityIcons, Octicons, Entypo, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 //import recoil state
-import { useRecoilState } from 'recoil';
-import { currentDate, currentUserId } from '../ApiState';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { currentDate, currentUsername, currentUserId } from '../ApiState';
 
 export default function Home({ navigation }) {
     const [selectedDate, setSelectedDate] = useRecoilState(currentDate);
@@ -21,7 +21,7 @@ export default function Home({ navigation }) {
                 <View style={{ justifyContent: 'space-between', flexDirection: 'row', }}>
                     <Text style={{ color: 'yellow', fontSize: 70, }}>Hi !</Text>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text style={{color: 'white', fontSize: 20, fontWeight: 700}}>Jonh Doe</Text>
+                        <Text style={{color: 'white', fontSize: 20, fontWeight: 700}}>{useRecoilValue(currentUsername)}</Text>
                       <TouchableOpacity
                         style={{marginLeft:10, paddingTop: 10, alignItems: 'center', backgroundColor: 'white', borderRadius: 60, height: 60, width: 60 }}
                         onPress={() => { navigation.navigate('Profile') }} >

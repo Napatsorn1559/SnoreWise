@@ -4,7 +4,7 @@ import { Home, Notification, Record, RequestLog, Visualization, LoginPage, Regis
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, PrivateValueStore } from '@react-navigation/native';
-import { MaterialIcons, Foundation, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons, Foundation, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { RecoilRoot } from 'recoil';
 
 const Stack = createStackNavigator();
@@ -57,6 +57,16 @@ const LoggedIn = () => {
             )
           }
         }} />
+         {/* <Tab.Screen name="profile" component={Profile}
+        options={{
+          tabBarIcon: ({ focused }) => {
+            return (
+              <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                <Ionicons name="person-outline" size={iconSize} color={focused ? 'white' : 'black'} />
+              </View>
+            )
+          }
+        }} /> */}
       <Tab.Screen name="Notification" component={Notification}
         options={{
           tabBarIcon: ({ focused }) => {
@@ -117,6 +127,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(211, 190, 11, 0.8)'
   },
   screenOption: {
+    borderTopColor:'none',
+    border: 'none',
     tabBarShowLabel: false,
     headerShown: false,
     tabBarStyle: {

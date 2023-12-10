@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     StyleSheet,
     Text,
@@ -14,40 +14,51 @@ import {
     TouchableWithoutFeedback
 } from "react-native";
 import background from '../assets/background.png';
+import axios from 'axios';
+import { useRecoilState } from "recoil";
+import { currentUserId, currentUsername } from "../ApiState";
 
-export default function LoginPage({navigation}) {
+export default function LoginPage({ navigation}) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [userId, setUserId] = useRecoilState(currentUserId);
+    const [usernameR, setUsernameR] = useRecoilState(currentUsername);
+
+    useEffect(() => {
+        if (userId !== '0' && usernameR !== 'user') {
+            console.log(userId, 'is logged in');
+            // Navigate to 'loggedIn' screen
+            navigation.navigate('loggedIn');
+        }else{
+            console.log('false condition');
+        }
+    }, [userId, usernameR]);
 
     const handleLogin = async () => {
         try {
-           const response = await fetch("http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/login", {
-              method: "POST",
-              headers: {
-                 "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                 email: username,
-                 password: password,
-              }),
-           });
-     
-           if (!response.ok) {
-              const data = response.ok ? await response.json() : {};
-              console.error(data.error || "Login failed");
-              return;
-           }
-     
-           console.log("Response data:", await response.json());
-           console.log("Login successful");
-           // Navigate to "LoggedIn" page
-           navigation.navigate('LoggedIn');
+            const http = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/login';
+
+            let jsonPayload = {
+                'username': username,
+                'password': password
+            };
+
+            const response = await axios.post(http, jsonPayload);
+
+            if (response.status === 200) {
+                console.log("Login successful");
+                setUserId(response.data.user_id);
+                setUsernameR(response.data.username);
+            } else {
+                console.error("Login failed ->", response.status);
+            }
+
         } catch (error) {
-           console.error("Error", error.message);
+            console.error("Login failed :", error.message);
         }
-     };
-     
-     
+    };
+
+
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -57,9 +68,9 @@ export default function LoginPage({navigation}) {
                     style={styles.container}
                     source={background}
                 >
-                    <Image 
-                        style={styles.image} 
-                        source={require("../assets/temp_logo.png")} 
+                    <Image
+                        style={styles.image}
+                        source={require("../assets/temp_logo.png")}
                     />
                     <View style={styles.inputView}>
                         <TextInput
@@ -78,26 +89,25 @@ export default function LoginPage({navigation}) {
                             onChangeText={(password) => setPassword(password)}
                         />
                     </View>
-                    <TouchableOpacity 
-                        style={styles.loginBtn} 
-                        // onPress={() => handleLogin()}>
-                        onPress={() => {navigation.navigate('loggedIn')}}>
+                    <TouchableOpacity
+                        style={styles.loginBtn}
+                        onPress={() => handleLogin()}>
+                        {/* onPress={() => {navigation.navigate('loggedIn')}}> */}
                         <Text style={styles.loginText}>Log in</Text>
                     </TouchableOpacity>
 
                     <View style={{ height: 40 }} />
                     <View style={styles.separator} />
-                    <TouchableOpacity 
-                        style={styles.loginBtn} 
-                        onPress={() => {navigation.navigate('Register');
+                    <TouchableOpacity
+                        style={styles.loginBtn}
+                        onPress={() => {
+                            navigation.navigate('Register');
                         }}
                     >
                         <Text style={styles.loginText}>Sign up</Text>
                     </TouchableOpacity>
 
                 </ImageBackground>
-
-
             </View>
         </TouchableWithoutFeedback>
 
@@ -120,10 +130,10 @@ const styles = StyleSheet.create({
     },
     separator: {
         height: 2,
-        width:"80%",
+        width: "80%",
         alignSelf: 'center',
         backgroundColor: "#fff",
-      },
+    },
     container: {
         flex: 1,
         backgroundColor: "#1F1B3C",

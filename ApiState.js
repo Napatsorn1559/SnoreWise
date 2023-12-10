@@ -3,7 +3,12 @@ import { atom } from 'recoil';
 
 export const currentUserId = atom({
   key: 'currentUserId',
-  default: 3,
+  default: '0',
+})
+
+export const currentUsername = atom({
+  key: 'currentUsername',
+  default: 'user',
 })
 
 export const currentDate = atom({
