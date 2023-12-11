@@ -179,7 +179,7 @@ export default function Visualization() {
                   <Text style={{ color: 'white', fontSize: 15, fontWeight: '500' }}>duration {calculateDuration(item.time_start, item.time_stop)} mins</Text>
                   <Text style={{ color: 'white', fontSize: 15, fontWeight: '500' }}>intensity {item.calls == null ? 0 : item.calls} times</Text>
                 </View>
-                <SoundPlayer soundFileUri={item.path} />
+                {/* <SoundPlayer soundFileUri={item.path} /> */}
               </View>
               <View style={styles.separator} />
             </View>

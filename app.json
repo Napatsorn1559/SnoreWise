@@ -1,15 +1,5 @@
 {
   "expo": {
-<<<<<<< HEAD
-    "name": "snorewise-draft1",
-    "slug": "snorewise-draft1",
-    "version": "1.0.0",
-    "assetBundlePatterns": [
-      "**/*"
-    ]
-  },
-  "name": "snorewise-draft1"
-=======
     "name": "snorewise",
     "slug": "snorewise",
     "version": "1.0.0",
@@ -37,5 +27,4 @@
       "favicon": "./assets/favicon.png"
     }
   }
->>>>>>> sw-v2
 }
