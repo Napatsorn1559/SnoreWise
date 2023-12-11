@@ -45,7 +45,7 @@ export default function LoginPage({ navigation}) {
                 setTimeout(() => {
                     console.log(userId, 'is logged in')
                     navigation.navigate('loggedIn');
-                }, 300);
+                }, 150);
                 
             } else {
                 console.error("error",response.status,"Login failed : username or password is not correct");

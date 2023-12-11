@@ -23,6 +23,16 @@ export default function Profile({ navigation }) {
     const [editableProfile, setEditableProfile] = useState({});
     const [isEditing, setIsEditing] = useState(false); // track edit mode
 
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [bday, setBday] = useState('');
+    const [gender, setGender] = useState('');
+    const [nationality, setNationality] = useState('');
+    const [height, setHeight] = useState('');
+    const [weight, setWeight] = useState('');
+    const [medCondition, setMedCondition] = useState('');
+
     useEffect(() => {
         const fetchData = async () => {
             console.log(uid);
@@ -34,16 +44,25 @@ export default function Profile({ navigation }) {
             try {
                 const response = await axios.post(http, jsonPayload);
                 // console.log(JSON.stringify(response.data));
+                setFirstName(response.data.firstname);
+                setLastName(response.data.lastname);
+                setBday(response.data.birthday);
+                setEmail(response.data.email);
+                setGender(response.data.gender);
+                setNationality(response.data.nationality);
+                setHeight(response.data.height);
+                setWeight(response.data.weight);
+                setMedCondition(response.data.medical_condition);
+
                 setProfile(response.data);
             } catch (error) {
                 console.error("Error fetching data:", error.message);
             }
         };
 
-        if(uid !== 0){ fetchData(); }
-    }, [uid]); // Only run the effect when userId changes
+        if (uid !== 0) { fetchData(); }
+    }, [uid, isEditing]); // Only run the effect when userId changes
 
-    let bdate = new Date(profile.birthday)
 
     // editable
     const handleEdit = (field, value) => {
@@ -52,7 +71,7 @@ export default function Profile({ navigation }) {
             [field]: value,
         });
         console.log("you are in handleEdit");
-        setIsEditing(true); 
+        setIsEditing(true);
         console.log(isEditing);
     };
 
@@ -60,7 +79,7 @@ export default function Profile({ navigation }) {
     // save & update data
     const handleSave = async () => {
         try {
-            const post_url = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/update-user/${uid}';
+            const post_url = `http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/update-user/${uid}`;
 
             console.log("you are in handleSave");
             console.log("user id =", uid);
@@ -71,25 +90,25 @@ export default function Profile({ navigation }) {
             // // update the local state with the saved information.
             //     setProfile(response.data);
             // }
+            let payload = {
+                "birthday": bday, 
+                "email": email, 
+                "firstname": firstName, 
+                "gender": gender, 
+                "height": height, 
+                "lastname": lastName, 
+                "medical_condition": medCondition,
+                "nationality": nationality,
+                "weight": weight
+            }
 
             if (isEditing) {
-                response = await fetch(post_url, {
-                    method: "PUT",
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(editableProfile),
-                });
+                const response = await axios.put(post_url, payload)
+                    .then((response) => { console.log(response.data) })
+                    .catch((error) => { console.error("update profile fail", error); })
             }
 
-            if (isEditing && !response.ok) {
-                console.error("Update failed:", response.status, response.statusText);
-                const responseData = await response.text(); // Log the full response
-                console.error("Full response:", responseData);
-                return;
-            }
-
-            setIsEditing(false); 
+            setIsEditing(false);
             console.log("update success");
         } catch (error) {
             console.error("Error updating data:", error.message);
@@ -111,7 +130,7 @@ export default function Profile({ navigation }) {
                 </View>
 
                 <View style={styles.profile}>
-                    <Image style={styles.image} source={require('../assets/temp_logo.png')} />  
+                    <Image style={styles.image} source={require('../assets/temp_logo.png')} />
                     <View style={styles.profileInfo}>
                         <Text style={{ color: 'white', fontSize: 20, fontWeight: '700' }}>{profile.username}</Text>
                     </View>
@@ -125,51 +144,83 @@ export default function Profile({ navigation }) {
                             {isEditing ? (
                                 <TextInput
                                     style={styles.Inputtext}
-                                    value={editableProfile.firstname || profile.firstname}
-                                    onChangeText={(text) => handleEdit("firstname", text)}
+                                    value={firstName}
+                                    onChangeText={(text) => setFirstName(text)}
                                 />
                             ) : (
-                                <Text style={styles.Inputtext}>{profile.firstname}</Text>
+                                <Text style={styles.Inputtext}>{firstName}</Text>
                             )}
                         </View>
                         <View style={[styles.inputBox, styles.inlineBox]}>
                             <Text style={styles.titleText}>Lastname</Text>
-                            <Text style={styles.Inputtext}>{profile.lastname}</Text>
+                            {isEditing ? (<TextInput
+                                style={styles.Inputtext}
+                                value={lastName}
+                                onChangeText={(text) => setLastName(text)}
+                            />) :( <Text style={styles.Inputtext}>{lastName}</Text>)}
                         </View>
                     </View>
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>E-mail</Text>
-                        <Text style={styles.Inputtext}>{profile.email}</Text>
+                        {isEditing ? <TextInput
+                            style={styles.Inputtext}
+                            value={email}
+                            onChangeText={(text) => setEmail(text)}
+                        /> : <Text style={styles.Inputtext}>{email}</Text>}
                     </View>
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>Date of Birth</Text>
-                        <Text style={styles.Inputtext}>{bdate.toUTCString().slice(0,-12)}</Text>
+                        {isEditing ? <TextInput
+                            style={styles.Inputtext}
+                            value={bday}
+                            onChangeText={(text) => setBday(text)}
+                        /> : <Text style={styles.Inputtext}>{bday.toString()}</Text>}
                     </View>
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>Gender</Text>
-                        <Text style={styles.Inputtext}>{profile.gender}</Text>
+                        {isEditing ? (<TextInput
+                            style={styles.Inputtext}
+                            value={gender}
+                            onChangeText={(text) => setGender(text)}
+                        />) : <Text style={styles.Inputtext}>{gender}</Text>}
                     </View>
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>Nationality</Text>
-                        <Text style={styles.Inputtext}>{profile.nationality}</Text>
+                        { isEditing? (<TextInput
+                            style={styles.Inputtext}
+                            value={nationality}
+                            onChangeText={(text) => setNationality(text)}
+                        />) : <Text style={styles.Inputtext}>{nationality}</Text>}
                     </View>
                     <View style={styles.inlineContainer}>
                         <View style={[styles.inputBox, styles.inlineBox]}>
                             <Text style={styles.titleText}>Height</Text>
-                            <Text style={styles.Inputtext}>{profile.height}</Text>
+                            {isEditing ? (<TextInput
+                                style={styles.Inputtext}
+                                value={height}
+                                onChangeText={(text) => setHeight(text)}
+                            />) : <Text style={styles.Inputtext}>{height}</Text>}
                         </View>
                         <View style={[styles.inputBox, styles.inlineBox]}>
                             <Text style={styles.titleText}>Weight</Text>
-                            <Text style={styles.Inputtext}>{profile.weight}</Text>
+                          {isEditing ? (<TextInput
+                                style={styles.Inputtext}
+                                value={weight}
+                                onChangeText={(text) => setWeight(text)}
+                            />) : <Text style={styles.Inputtext}>{weight}</Text>}
                         </View>
                     </View>
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>Medical Condition</Text>
-                        <Text style={styles.Inputtext}>{profile.medical_condition}</Text>
+                        { isEditing ? ( <TextInput
+                            style={styles.Inputtext}
+                            value={medCondition}
+                            onChangeText={(text) => setMedCondition(text)}
+                        />) : <Text style={styles.Inputtext}>{medCondition}</Text>}
                     </View>
-                    <TouchableOpacity style={[styles.saveBtn, !isEditing ? styles.editBtn : styles.saveBtn,]} 
-                    onPress={!isEditing ? handleEdit : handleSave} >
-                        <Text style={!isEditing ? styles.editText : styles.saveText}> 
+                    <TouchableOpacity style={[styles.saveBtn, !isEditing ? styles.editBtn : styles.saveBtn,]}
+                        onPress={!isEditing ? handleEdit : handleSave} >
+                        <Text style={!isEditing ? styles.editText : styles.saveText}>
                             {!isEditing ? 'Edit' : 'Save'}
                         </Text>
                     </TouchableOpacity>
@@ -203,18 +254,18 @@ const styles = StyleSheet.create({
     },
     profileInfo: {
         alignItems: 'center',
-        marginTop: 15, 
+        marginTop: 15,
     },
     bglight: {
         color: 'white',
         backgroundColor: 'rgba(255,255,255,0.6)',
         alignItems: 'stretch',
         justifyContent: 'center',
-        borderTopLeftRadius:20,
-        borderTopRightRadius:20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
         padding: 10,
-        paddingTop:30,
-        paddingBottom:30,
+        paddingTop: 30,
+        paddingBottom: 30,
         marginHorizontal: 15,
     },
     logoutBtn: {
