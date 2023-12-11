@@ -60,7 +60,8 @@ export default function Profile({ navigation }) {
     // save & update data
     const handleSave = async () => {
         try {
-            const post_url = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/update-user/${uid}';
+            
+            const post_url = `http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/update-user/${uid}`;
 
             console.log("you are in handleSave");
             console.log("user id =", uid);
@@ -80,13 +81,21 @@ export default function Profile({ navigation }) {
                     },
                     body: JSON.stringify(editableProfile),
                 });
-            }
+            
 
-            if (isEditing && !response.ok) {
-                console.error("Update failed:", response.status, response.statusText);
-                const responseData = await response.text(); // Log the full response
-                console.error("Full response:", responseData);
-                return;
+                if (isEditing && !response.ok) {
+                    console.error("Update failed:", response.status, response.statusText);
+                    const responseData = await response.text(); // Log the full response
+                    console.error("Full response:", responseData);
+                    return;
+                }
+
+                // Fetch the updated data from the server after a successful update
+                const updatedDataResponse = await axios.post('http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/getuser', {
+                    user_id: uid,
+                });
+
+                setProfile(updatedDataResponse.data);
             }
 
             setIsEditing(false); 
@@ -134,12 +143,30 @@ export default function Profile({ navigation }) {
                         </View>
                         <View style={[styles.inputBox, styles.inlineBox]}>
                             <Text style={styles.titleText}>Lastname</Text>
-                            <Text style={styles.Inputtext}>{profile.lastname}</Text>
+                            {/* <Text style={styles.Inputtext}>{profile.lastname}</Text> */}
+                            {isEditing ? (
+                                <TextInput
+                                    style={styles.Inputtext}
+                                    value={editableProfile.lastname || profile.lastname}
+                                    onChangeText={(text) => handleEdit("lastname", text)}
+                                />
+                            ) : (
+                                <Text style={styles.Inputtext}>{profile.lastname}</Text>
+                            )}
                         </View>
                     </View>
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>E-mail</Text>
-                        <Text style={styles.Inputtext}>{profile.email}</Text>
+                        {/* <Text style={styles.Inputtext}>{profile.email}</Text> */}
+                        {isEditing ? (
+                            <TextInput
+                                style={styles.Inputtext}
+                                value={editableProfile.email || profile.email}
+                                onChangeText={(text) => handleEdit("email", text)}
+                            />
+                        ) : (
+                            <Text style={styles.Inputtext}>{profile.email}</Text>
+                        )}
                     </View>
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>Date of Birth</Text>
@@ -147,25 +174,70 @@ export default function Profile({ navigation }) {
                     </View>
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>Gender</Text>
-                        <Text style={styles.Inputtext}>{profile.gender}</Text>
+                        {/* <Text style={styles.Inputtext}>{profile.gender}</Text> */}
+                        {isEditing ? (
+                            <TextInput
+                                style={styles.Inputtext}
+                                value={editableProfile.gender || profile.gender}
+                                onChangeText={(text) => handleEdit("gender", text)}
+                            />
+                        ) : (
+                            <Text style={styles.Inputtext}>{profile.gender}</Text>
+                        )}
                     </View>
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>Nationality</Text>
-                        <Text style={styles.Inputtext}>{profile.nationality}</Text>
+                        {/* <Text style={styles.Inputtext}>{profile.nationality}</Text> */}
+                        {isEditing ? (
+                            <TextInput
+                                style={styles.Inputtext}
+                                value={editableProfile.nationality || profile.nationality}
+                                onChangeText={(text) => handleEdit("nationality", text)}
+                            />
+                        ) : (
+                            <Text style={styles.Inputtext}>{profile.nationality}</Text>
+                        )}
                     </View>
                     <View style={styles.inlineContainer}>
                         <View style={[styles.inputBox, styles.inlineBox]}>
                             <Text style={styles.titleText}>Height</Text>
-                            <Text style={styles.Inputtext}>{profile.height}</Text>
+                            {/* <Text style={styles.Inputtext}>{profile.height}</Text> */}
+                            {isEditing ? (
+                            <TextInput
+                                style={styles.Inputtext}
+                                value={editableProfile.height || profile.height}
+                                onChangeText={(text) => handleEdit("height", text)}
+                            />
+                            ) : (
+                                <Text style={styles.Inputtext}>{profile.height}</Text>
+                            )}
                         </View>
                         <View style={[styles.inputBox, styles.inlineBox]}>
                             <Text style={styles.titleText}>Weight</Text>
-                            <Text style={styles.Inputtext}>{profile.weight}</Text>
+                            {/* <Text style={styles.Inputtext}>{profile.weight}</Text> */}
+                            {isEditing ? (
+                            <TextInput
+                                style={styles.Inputtext}
+                                value={editableProfile.weight || profile.weight}
+                                onChangeText={(text) => handleEdit("weight", text)}
+                            />
+                            ) : (
+                                <Text style={styles.Inputtext}>{profile.weight}</Text>
+                            )}
                         </View>
                     </View>
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>Medical Condition</Text>
-                        <Text style={styles.Inputtext}>{profile.medical_condition}</Text>
+                        {/* <Text style={styles.Inputtext}>{profile.medical_condition}</Text> */}
+                        {isEditing ? (
+                            <TextInput
+                                style={styles.Inputtext}
+                                value={editableProfile.medical_condition || profile.medical_condition}
+                                onChangeText={(text) => handleEdit("medical_condition", text)}
+                            />
+                        ) : (
+                            <Text style={styles.Inputtext}>{profile.medical_condition}</Text>
+                        )}
                     </View>
                     <TouchableOpacity style={[styles.saveBtn, !isEditing ? styles.editBtn : styles.saveBtn,]} 
                     onPress={!isEditing ? handleEdit : handleSave} >
