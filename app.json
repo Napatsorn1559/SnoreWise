@@ -1,5 +1,6 @@
 {
   "expo": {
+<<<<<<< HEAD
     "name": "snorewise-draft1",
     "slug": "snorewise-draft1",
     "version": "1.0.0",
@@ -8,4 +9,33 @@
     ]
   },
   "name": "snorewise-draft1"
+=======
+    "name": "snorewise",
+    "slug": "snorewise",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/temp_logo.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#231E30"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/temp_logo.png",
+        "backgroundColor": "#231E30"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+>>>>>>> sw-v2
 }
