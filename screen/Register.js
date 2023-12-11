@@ -68,16 +68,21 @@ export default function Register({ navigation }) {
     }
   };
 
+
   const handlePrevious = () => {
     setStep(step - 1);
   };
-    const showDatePicker = () => {
+
+
+  const showDatePicker = () => {
       setDatePickerVisibility(true);
   };
+
 
   const hideDatePicker = () => {
       setDatePickerVisibility(false);
   };
+
 
   const handleConfirm = (selectedDate) => {
     hideDatePicker();
@@ -88,10 +93,10 @@ export default function Register({ navigation }) {
       day: 'numeric',
     });
     setFormData({ ...formData, birthday: formattedDate });
-
   };
-  const handleFinish = () => {
 
+
+  const handleFinish = () => {
       // Check if any required field is empty
     const getEmptyFields = () => {
       const requiredFields = ["username", "email", "password", "confirmPassword"];
@@ -109,11 +114,12 @@ export default function Register({ navigation }) {
     }
  
     console.log("Form Data:", formData);
-    alert("Registration Sucessful \nPlease login with created account");
+    //alert("Registration Sucessful \nPlease login with created account");
     //postRegis(username, email, password, firstName, lastName, gender, dateOfBirth);
     postRegis(formData);
-    navigation.navigate("Login");
+    //navigation.navigate("Login");
   };
+
 
   const getStepField = (currentStep) => {
     switch (currentStep) {
@@ -126,10 +132,9 @@ export default function Register({ navigation }) {
     }
   };
 
+
   const renderStepContent = () => {
-
     const { goBack } = useNavigation();
-
     switch (step) {
       case 1:
         return (
@@ -273,9 +278,28 @@ export default function Register({ navigation }) {
     }
   };
 
-  async function postRegis(data) {
 
+  async function postRegis(data) {
     let url = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/create-user';
+
+    // const data = JSON.stringify({
+    //   username: us,
+    //   email: e,
+    //   password: pwd,
+    //   firstname: fn,
+    //   lastname: ln,
+    //   gender: gd,
+    //   dateOfBirth: dob,
+    // });
+
+    // try {
+    //   const response = await fetch(url, {
+    //     method: "POST",
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: data,  
+    //   });
 
     try {
       const response = await fetch(url, {
@@ -294,15 +318,19 @@ export default function Register({ navigation }) {
       }
 
       const responseData = await response.json();
-      console.log("Registration successful:", responseData);
 
-      // Navigate to "LogIn" page
+      // regis success
+      console.log("Registration successful:", responseData);
+      alert("Registration Sucessful \nPlease login with created account");
       navigation.navigate('Login');
+
     } catch (error) {
       console.error("Error:", error.message);
     }
 
   }
+
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.root}>
@@ -391,7 +419,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 75,
+    top: 110,
     left: 0,
     zIndex: 1,
   },
