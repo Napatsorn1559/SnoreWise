@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, View, StyleSheet, Dimensions, ImageBackground, ScrollView, FlatList } from "react-native";
 import { LineChart } from 'react-native-chart-kit';
 import CalendarPicker from 'react-native-calendar-picker';
@@ -8,39 +8,81 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { currentDate, currentUserId } from '../ApiState';
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { AntDesign } from '@expo/vector-icons';
-
+import axios from "axios";
+import { Audio } from "expo-av";
 
 
 export default function Visualization() {
-  //just mockup dataset naja
-  const secondsData = [0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0,
-    1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0,
-  ];
+  const uid = useRecoilValue(currentUserId);
+  const [selectedDate, setSelectedDate] = useRecoilState(currentDate);
+  const [visualData, setVisualData] = React.useState([]);
+  const [chartData, setChartData] = useState([]);
 
-  const recordList = [
-    {
-      startTime: '12:00:00',
-      calls: 7,
-      duration: '10:00',
-      file: 'sound'
-    },
-    {
-      startTime: '12:00:00',
-      calls: 7,
-      duration: '10:00',
-      file: 'sound'
-    },
-    {
-      startTime: '12:00:00',
-      calls: 7,
-      duration: '10:00',
-      file: 'sound'
+  const SoundPlayer = ({ soundFileUri }) => {
+    const [sound, setSound] = useState();
+    // console.log(soundFileUri);
+    async function playSound() {
+      console.log("playSound click");
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: soundFileUri },
+        { shouldPlay: true }
+      );
+      setSound(sound);
     }
-  ]
 
+    useEffect(() => {
+      return sound ? () => sound.unloadAsync() : undefined;
+    }, [sound]);
 
+    return (
+      <View>
+        <TouchableOpacity  style={{backgroundColor:'rgba(255,255,255,0.8)', padding:5,borderRadius:5}} onPress={playSound}>
+          <AntDesign name="sound" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  useEffect(() => {
+
+    let createDate = new Date(selectedDate);
+    let year = createDate.getFullYear();
+    let month = createDate.getMonth()+1;
+    let date = createDate.getDate();
+    let postDate = `${year}-${month}-${date}`;
+    console.log("date for post get predict ->",postDate);
+
+    const fetchData = async () => {
+      setVisualData([]);
+      setChartData([]);
+        const http = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/getpredict';
+        let jsonPayload = {
+            'user_id': 2,
+            'date': postDate
+        };
+
+        try {
+            const response = await axios.post(http, jsonPayload);
+            console.log(response.data.response.length);
+            if(response.data.response.length > 0){
+              const modelResults = response.data.response.map(item => JSON.parse(item.model_result));
+              const cleanChartData = modelResults.flat().filter(value => !isNaN(value) && isFinite(value));
+              
+              setVisualData([response.data.response]);
+              setChartData(cleanChartData);
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error.message);
+        }
+    };
+
+    if(uid !== 0){fetchData()};
+}, [selectedDate]);
+  //just mockup dataset naja
+  const secondsData = [ 0 ];
+  console.log('chart data : ', chartData);
+  // console.log('visual data : ',visualData);
+ 
   const totalSeconds = secondsData.length;
   const secondsInAnHour = 3600;
   const calculateTimestamp = (index) => {
@@ -75,9 +117,14 @@ export default function Visualization() {
     },
   };
 
-
-
-  const [selectedDate, setSelectedDate] = useRecoilState(currentDate);
+  const calculateDuration = (timeStart, timeStop) => {
+    const start = new Date(`1970-01-01T${timeStart}`);
+    const stop = new Date(`1970-01-01T${timeStop}`);
+    const durationInMilliseconds = stop - start;
+    const durationInMinutes = durationInMilliseconds / (1000 * 60);
+    return Math.round(durationInMinutes);
+  };
+  
 
   return (
     <ImageBackground source={bg} style={styles.container}>
@@ -95,7 +142,7 @@ export default function Visualization() {
                 labels: xLabels,
                 datasets: [
                   {
-                    data: secondsData,
+                    data: chartData == 0 ? secondsData : chartData,
                     color: (opacity = 1) => `rgba(255, 208, 0, ${opacity})`,
                     strokeWidth: 2,
                   },
@@ -112,18 +159,19 @@ export default function Visualization() {
         </ScrollView>
         <FlatList
           style={{  marginBottom: 40 }}
-          data={recordList}
+          data={visualData[0]}
           renderItem={({ item }) => (
             <View style={styles.timestampContainer}>
               <View style={{ flexDirection: 'row', alignItems: 'center', paddingBottom: 10, justifyContent: 'space-evenly'}}>
-                <Text style={{ color: 'yellow', fontSize: 20, fontWeight: 'bold' }}>{item.startTime}</Text>
+                <Text style={{ color: 'yellow', fontSize: 20, fontWeight: 'bold' }}>{item.time_start}</Text>
                 <View>
-                  <Text style={{ color: 'white', fontSize: 15, fontWeight: '500' }}>duration {item.duration} mins</Text>
-                  <Text style={{ color: 'white', fontSize: 15, fontWeight: '500' }}>intensity {item.calls} times</Text>
+                  <Text style={{ color: 'white', fontSize: 15, fontWeight: '500' }}>duration {calculateDuration(item.time_start, item.time_stop)} mins</Text>
+                  <Text style={{ color: 'white', fontSize: 15, fontWeight: '500' }}>intensity {item.calls == null ? 0 : item.calls} times</Text>
                 </View>
-                <TouchableOpacity style={{backgroundColor:'rgba(255,255,255,0.8)', padding:5,borderRadius:5}}>
+                {/* <TouchableOpacity style={{backgroundColor:'rgba(255,255,255,0.8)', padding:5,borderRadius:5}} onPress={SoundPlayer(item.path)}>
                 <AntDesign name="sound" size={24} color="black" />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
+                <SoundPlayer soundFileUri={item.path} />
               </View>
               <View style={styles.separator} />
             </View>

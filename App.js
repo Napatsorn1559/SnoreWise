@@ -25,16 +25,6 @@ const LoggedIn = () => {
             )
           }
         }} />
-      {/* <Tab.Screen name="Visualization" component={Visualization}
-        options={{
-          tabBarIcon: ({ focused }) => {
-            return (
-              <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                <Foundation name="graph-bar" size={iconSize} color={focused ? 'white' : 'black'} />
-              </View>
-            )
-          }
-        }} /> */}
       <Tab.Screen name="Record" component={Record}
         options={{
           tabBarIcon: ({ focused }) => {
@@ -47,6 +37,16 @@ const LoggedIn = () => {
             )
           }
         }} />
+        <Tab.Screen name="Visualization" component={Visualization}
+          options={{
+            tabBarIcon: ({ focused }) => {
+              return (
+                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                  <Foundation name="graph-bar" size={iconSize} color={focused ? 'white' : 'black'} />
+                </View>
+              )
+            }
+          }} />
       {/* <Tab.Screen name="Request Log" component={RequestLog}
         options={{
           tabBarIcon: ({ focused }) => {
@@ -57,7 +57,7 @@ const LoggedIn = () => {
             )
           }
         }} /> */}
-         <Tab.Screen name="profile" component={Profile}
+         {/* <Tab.Screen name="profile" component={Profile}
         options={{
           tabBarIcon: ({ focused }) => {
             return (
@@ -66,7 +66,7 @@ const LoggedIn = () => {
               </View>
             )
           }
-        }} />
+        }} /> */}
       {/* <Tab.Screen name="Notification" component={Notification}
         options={{
           tabBarIcon: ({ focused }) => {
