@@ -15,3 +15,13 @@ export const currentDate = atom({
   key: 'currentDate',
   default: new Date(),
 })
+
+export const totalCalls = atom({
+  key: 'totalCalls',
+  default: '0'
+})
+
+export const totalSleeptime = atom({
+  key: 'totalSleeptime',
+  default: '0'
+})
