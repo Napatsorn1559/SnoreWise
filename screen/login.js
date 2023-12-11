@@ -24,15 +24,7 @@ export default function LoginPage({ navigation}) {
     const [userId, setUserId] = useRecoilState(currentUserId);
     const [usernameR, setUsernameR] = useRecoilState(currentUsername);
 
-    useEffect(() => {
-        if (userId !== '0' && usernameR !== 'user') {
-            console.log(userId, 'is logged in');
-            // Navigate to 'loggedIn' screen
-            navigation.navigate('loggedIn');
-        }else{
-            console.log('false condition');
-        }
-    }, [userId, usernameR]);
+
 
     const handleLogin = async () => {
         try {
@@ -45,12 +37,17 @@ export default function LoginPage({ navigation}) {
 
             const response = await axios.post(http, jsonPayload);
 
-            if (response.status === 200) {
+            if (response.status === 200 && response.data.error !== 'Invalid email') {
                 console.log("Login successful");
                 setUserId(response.data.user_id);
                 setUsernameR(response.data.username);
+                if (userId !== '0' && usernameR !== 'user') {
+                    console.log(userId, 'is logged in');
+                    // Navigate to 'loggedIn' screen
+                    navigation.navigate('loggedIn');
+                }
             } else {
-                console.error("Login failed ->", response.status);
+                console.error("error",response.status,"Login failed : username or password is not correct");
             }
 
         } catch (error) {
