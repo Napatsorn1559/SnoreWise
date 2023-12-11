@@ -13,7 +13,8 @@ import {
 import background from "../assets/background.png";
 import { useNavigation } from '@react-navigation/native';
 import { AntDesign } from '@expo/vector-icons';
-
+import RNPickerSelect from 'react-native-picker-select';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 export default function Register({ navigation }) {
   const [step, setStep] = useState(1);
@@ -27,7 +28,11 @@ export default function Register({ navigation }) {
     gender: "",
     birthday: "",
   });
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [date, setDate] = useState(new Date());
+  
 
+  
   const handleNext = () => {
 
     // Check if any required field is empty
@@ -66,7 +71,25 @@ export default function Register({ navigation }) {
   const handlePrevious = () => {
     setStep(step - 1);
   };
+    const showDatePicker = () => {
+      setDatePickerVisibility(true);
+  };
 
+  const hideDatePicker = () => {
+      setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (selectedDate) => {
+    hideDatePicker();
+    setDate(selectedDate);
+    const formattedDate = selectedDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+    });
+    setFormData({ ...formData, birthday: formattedDate });
+
+  };
   const handleFinish = () => {
 
       // Check if any required field is empty
@@ -122,6 +145,7 @@ export default function Register({ navigation }) {
               <TextInput
                 style={styles.TextInput}
                 placeholder="Username"
+                autoCapitalize='none'
                 placeholderTextColor="'rgba(255, 255, 255, 0.7)'"
                 onChangeText={(username) =>
                   setFormData({ ...formData, username })
@@ -134,6 +158,7 @@ export default function Register({ navigation }) {
               <TextInput
                 style={styles.TextInput}
                 placeholder="email@example.com"
+                autoCapitalize='none'
                 placeholderTextColor="'rgba(255, 255, 255, 0.7)'"
                 onChangeText={(email) =>
                   setFormData({ ...formData, email })
@@ -148,6 +173,7 @@ export default function Register({ navigation }) {
                 placeholder="Password"
                 placeholderTextColor="'rgba(255, 255, 255, 0.7)'"
                 secureTextEntry={true}
+                
                 onChangeText={(password) =>
                   setFormData({ ...formData, password })
                 }
@@ -198,30 +224,46 @@ export default function Register({ navigation }) {
                 value={formData.lastname}
               />
             </View>
-            <Text style={{color: 'white', fontSize: 20, fontWeight: 700}}>Gender</Text>
+            <Text style={{ color: 'white', fontSize: 20, fontWeight: '700' }}>Gender</Text>
             <View style={styles.inputView}>
-              <TextInput
-                style={styles.TextInput}
-                placeholder="Gender"
+              <RNPickerSelect
+                placeholder={{
+                  label: 'Select Gender', // Set your custom placeholder text here
+                  value: null,
+                }}
                 placeholderTextColor="'rgba(255, 255, 255, 0.7)'"
-                onChangeText={(gender) =>
-                  setFormData({ ...formData, gender })
-                }
-                value={formData.gender}
+                onValueChange={(gender) => setFormData({ ...formData, gender })}
+                items={[
+                  { label: 'Male', value: 'male' },
+                  { label: 'Female', value: 'female' },
+                  { label: 'Prefer not to say', value: 'preferNotToSay' },
+                ]}
+                textInputProps={{
+                  style: {
+                    padding: 10,
+                    fontSize: 16,
+                    fontWeight: "bold",
+                    color: "'rgba(255, 255, 255, 0.7)'",
+                    width: "100%",
+                  },
+                }}
               />
             </View>
-            <Text style={{color: 'white', fontSize: 20, fontWeight: 700}}>Date of Birth</Text>
-            <View style={styles.inputView}>
-              <TextInput
-                style={styles.TextInput}
-                placeholder="Date of Birth"
-                placeholderTextColor="'rgba(255, 255, 255, 0.7)'"
-                onChangeText={(birthday) =>
-                  setFormData({ ...formData, birthday })
-                }
-                value={formData.birthday}
-              />
-            </View>
+
+            <Text style={{ color: 'white', fontSize: 20, fontWeight: '700' }}>Date of Birth</Text>
+              <View style={styles.inputView}>
+                <TouchableWithoutFeedback onPress={showDatePicker}>
+                  <View style={styles.datePickerStyle}>
+                    <Text style={[styles.dateText, { color: "'rgba(255, 255, 255, 0.7)'"}]}>{formData.birthday || 'Select Date'}</Text>
+                  </View>
+                </TouchableWithoutFeedback>
+                <DateTimePickerModal
+                  isVisible={isDatePickerVisible}
+                  mode="date"
+                  onConfirm={handleConfirm}
+                  onCancel={hideDatePicker}
+                />
+              </View>
             <View style={styles.buttonContainer}>
           </View>
         </View>
@@ -234,25 +276,6 @@ export default function Register({ navigation }) {
   async function postRegis(data) {
 
     let url = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/create-user';
-
-    // const data = JSON.stringify({
-    //   username: us,
-    //   email: e,
-    //   password: pwd,
-    //   firstname: fn,
-    //   lastname: ln,
-    //   gender: gd,
-    //   dateOfBirth: dob,
-    // });
-
-    // try {
-    //   const response = await fetch(url, {
-    //     method: "POST",
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: data,
-    //   });
 
     try {
       const response = await fetch(url, {
@@ -273,8 +296,8 @@ export default function Register({ navigation }) {
       const responseData = await response.json();
       console.log("Registration successful:", responseData);
 
-      // Navigate to "LoggedIn" page or perform other actions
-      navigation.navigate('loggedIn');
+      // Navigate to "LogIn" page
+      navigation.navigate('Login');
     } catch (error) {
       console.error("Error:", error.message);
     }
@@ -327,29 +350,30 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   inputView: {
-    width: "70%",
-    height: 45,
+    // width: "70%",
+    // height: 45,
+
     marginBottom: 20,
-    alignItems: "center",
+    alignItems: 'stretch',
     justifyContent: "center",
     borderBottomWidth: 2,
     borderBottomColor: "#FFCE46",
   },
   TextInput: {
-     height: "auto",
-    textAlign: "center",
-    flex: 1,
+    //  height: "auto",
+    // textAlign: "center",
     padding: 10,
     fontSize: 16,
     fontWeight: "bold",
     color: "white",
+    width: "100%",
   },
   buttonContainer: {
     flexDirection: "row",
     margin:50,
     alignItems: "center",
     justifyContent: "center",
-    // width: "70%",
+    width: "70%",
   },
   button: {
     width: "50%",
@@ -367,8 +391,18 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 110,
+    top: 75,
     left: 0,
     zIndex: 1,
+  },
+  dateText:{
+    padding: 10,
+    fontSize: 16,
+    fontWeight: "bold",
+    width: "100%",
+    color: "'rgba(255, 255, 255, 0.7)'",
+  },
+  datePickerStyle:{
+    color:"black",
   },
 });
