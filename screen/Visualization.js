@@ -61,7 +61,7 @@ export default function Visualization() {
     const fetchData = async () => {
       setVisualData([]);
       setChartData([]);
-      const http = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/getpredict';
+      const http = 'http://Snorewise-mobile-env.eba-chmvh2mv.us-east-1.elasticbeanstalk.com/getpredict';
       let jsonPayload = {
         'user_id': uid,
         'date': postDate

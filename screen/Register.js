@@ -280,7 +280,7 @@ export default function Register({ navigation }) {
 
 
   async function postRegis(data) {
-    let url = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/create-user';
+    let url = 'http://Snorewise-mobile-env.eba-chmvh2mv.us-east-1.elasticbeanstalk.com/create-user';
 
     // const data = JSON.stringify({
     //   username: us,

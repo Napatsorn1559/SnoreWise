@@ -28,7 +28,7 @@ export default function LoginPage({ navigation}) {
 
     const handleLogin = async () => {
         try {
-            const http = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/login';
+            const http = 'http://Snorewise-mobile-env.eba-chmvh2mv.us-east-1.elasticbeanstalk.com/login';
 
             let jsonPayload = {
                 'username': username,

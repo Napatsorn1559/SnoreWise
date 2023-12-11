@@ -36,7 +36,7 @@ export default function Profile({ navigation }) {
     useEffect(() => {
         const fetchData = async () => {
             console.log(uid);
-            const http = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/getuser';
+            const http = 'http://Snorewise-mobile-env.eba-chmvh2mv.us-east-1.elasticbeanstalk.com/getuser';
             let jsonPayload = {
                 'user_id': uid,
             };
@@ -79,7 +79,7 @@ export default function Profile({ navigation }) {
     // save & update data
     const handleSave = async () => {
         try {
-            const post_url = `http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/update-user/${uid}`;
+            const post_url = `http://Snorewise-mobile-env.eba-chmvh2mv.us-east-1.elasticbeanstalk.com/update-user/${uid}`;
 
             console.log("you are in handleSave");
             console.log("user id =", uid);
