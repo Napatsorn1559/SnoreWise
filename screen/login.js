@@ -41,11 +41,12 @@ export default function LoginPage({ navigation}) {
                 console.log("Login successful");
                 setUserId(response.data.user_id);
                 setUsernameR(response.data.username);
-                if (userId !== '0' && usernameR !== 'user') {
-                    console.log(userId, 'is logged in');
-                    // Navigate to 'loggedIn' screen
+                
+                setTimeout(() => {
+                    console.log(userId, 'is logged in')
                     navigation.navigate('loggedIn');
-                }
+                }, 300);
+                
             } else {
                 console.error("error",response.status,"Login failed : username or password is not correct");
             }

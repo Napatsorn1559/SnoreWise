@@ -394,7 +394,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "white",
-    width: "100%",
   },
   buttonContainer: {
     flexDirection: "row",

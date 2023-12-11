@@ -1,5 +1,8 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, Button, ImageBackground } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Feather, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
+//import audio for record function
 import { Audio } from 'expo-av';
 import {
     AndroidAudioEncoder,
@@ -8,15 +11,16 @@ import {
     IOSOutputFormat,
     Recording,
 } from 'expo-av/build/Audio';
+
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
+//import axios for post api 
 import axios from 'axios';
+//import background image
 import bg from '../assets/top-bottom-bg.png';
 import waveLine from '../assets/horizontalWaveLine.png'
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Feather, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 //import recoil state
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { currentDate, currentUserId } from '../ApiState';
 
 export default function App() {
@@ -24,15 +28,16 @@ export default function App() {
     const [recordings, setRecordings] = React.useState([]);
     const [startRecord, setStartRecord] = React.useState();
     const [postedAudioFiles, setPostedAudioFiles] = React.useState([]);
-    const [date, setDate] = useRecoilState(currentDate);
-    const [userId, setUserId] = useRecoilState(currentUserId);
+    const userId = useRecoilValue(currentUserId);
 
+    //effect for getting a latest record when recordings changed
     useEffect(() => {
         if (recordings.length > 0) {
             getLatestRec();
         }
     }, [recordings]);
 
+    //effect for stop and play record every 10 minutes
     useEffect(() => {
         let intervalId;
 
@@ -51,75 +56,85 @@ export default function App() {
     }, [recording]);
 
 
+    //function for start recording
     async function startRecording() {
         try {
+            //request for permission
             const perm = await Audio.requestPermissionsAsync();
-            if (perm.status === "granted") {
+            if (perm.status === "granted") { //do if user allow permission
                 await Audio.setAudioModeAsync({
                     allowsRecordingIOS: true,
                     playsInSilentModeIOS: true
                 });
                 const { recording } = await Audio.Recording.createAsync({
                     isMeteringEnabled: true,
-                    android: {
+                    android: { //set record file type for andriod
                         ...Audio.RecordingOptionsPresets.HIGH_QUALITY.android,
                         extension: '.wav',
                         outputFormat: AndroidOutputFormat.DEFAULT,
                         audioEncoder: AndroidAudioEncoder.DEFAULT,
                     },
-                    ios: {
+                    ios: { //set record file type for ios
                         ...Audio.RecordingOptionsPresets.HIGH_QUALITY.ios,
                         extension: '.wav',
                         outputFormat: IOSOutputFormat.LINEARPCM,
                     },
-                    web: {
+                    web: { //set record file type for web
                         mimeType: 'audio/wav',
                         bitsPerSecond: 128000,
                     },
                 });
                 setRecording(recording);
+
+                //create start record time
                 let startRec = new Date();
                 setStartRecord(startRec);
             }
         } catch (err) { console.error('Failed to start recording', err) }
     }
 
+    //function for stop record
     async function stopRecording() {
         setRecording(undefined);
 
+        //stop recording
         await recording.stopAndUnloadAsync();
         await Audio.setAudioModeAsync({
             allowsRecordingIOS: false,
         });
-
+        //create list of previos record
         let allRecordings = [...recordings];
+        //create sound from record
         const { sound, status } = await recording.createNewLoadedSoundAsync();
+        //create stop record time
         let stopAt = new Date(startRecord.getTime() + status.durationMillis);
-        let recordDate = startRecord.toLocaleDateString();
+        //push an object in to allRecording list
         allRecordings.push({
             sound: sound,
             duration: getDurationFormatted(status.durationMillis),
             milliDuration: status.durationMillis,
             file: recording.getURI(),
-            date: recordDate.slice(0,-3),
-            start: startRecord.toLocaleTimeString(),
-            stop: stopAt.toLocaleTimeString(),
+            date: startRecord,
+            start: startRecord.toLocaleTimeString(), //record in time format string
+            stop: stopAt.toLocaleTimeString(), //record in time format string
         });
 
         setRecordings(allRecordings);
-        // getLatestRec()
     }
 
+    //create duration in 0:00 format
     function getDurationFormatted(milliseconds) {
         const minutes = milliseconds / 1000 / 60;
         const seconds = Math.round((minutes - Math.floor(minutes)) * 60);
         return seconds < 10 ? `${Math.floor(minutes)}:0${seconds}` : `${Math.floor(minutes)}:${seconds}`
     }
 
-    async function postAudio(uri,userId,date,start,stop) {
+    //function for post recorded audio
+    async function postAudio(uri, userId, date, start, stop) {
         console.log('post audio called');
 
-        if(postedAudioFiles.includes(uri)){
+        //to check if the audio already posted
+        if (postedAudioFiles.includes(uri)) {
             console.log('audio already posted');
             return;
         };
@@ -127,26 +142,34 @@ export default function App() {
         let url = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/send-audio';
         let filename = uri.split("/").pop();
         let nameNoWav = filename.split(".")[0];
-
-        const FormData = require('form-data');
+        //encode sound for post via api
         const audioContent = await FileSystem.readAsStringAsync(uri, {
             encoding: FileSystem.EncodingType.Base64,
         });
+
+        //import form data
+        const FormData = require('form-data');
+        //create form data
         let data = new FormData();
+
+        //append data to form-data
         data.append('user_id', userId);
         data.append('date', date);
         data.append('time_start', start);
         data.append('time_stop', stop);
         data.append('audioFile', {
             uri: `data:audio/wav;base64,${audioContent}`,
-            name: `userID-${nameNoWav}.wav`,
+            name: `${userId}-${nameNoWav}.wav`,
             type: 'audio/wav',
         });
-        console.log(data);
+        // console.log(data);
+
+
         try {
             const response = await axios.post(url, data, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
+            //see posted result
             console.log(JSON.stringify(response.data));
             // Add the posted audio file URI to the list
             setPostedAudioFiles([...postedAudioFiles, uri]);
@@ -156,34 +179,36 @@ export default function App() {
     }
 
 
+    //function for getting latest record from recordings
     function getLatestRec() {
         // Get the latest record based on the '_key' property
         const latestRecord = recordings.reduce((latest, current) => {
             return current.sound._key > latest.sound._key ? current : latest;
         }, recordings[0]);
+
         console.log('_key --> ', latestRecord.sound._key);
         console.log(latestRecord.duration);
 
-        let postData = {
-            'user_id' : userId,
-            'date': latestRecord.date,
-            'time_start' : latestRecord.start,
-            'time_stop' : latestRecord.stop,
-            'audioFile' : latestRecord.file
-        }
+        //set post date format
+        let createDate = new Date(latestRecord.date);
+        let year = createDate.getFullYear();
+        let month = createDate.getMonth() + 1;
+        let date = createDate.getDate();
+        let postDate = `${year}-${month}-${date}`;
+        // console.log("date for post audio ->", postDate);
+        // console.log(JSON.stringify(postData));
 
-        console.log(JSON.stringify(postData));
-        postAudio(latestRecord.file,userId, latestRecord.date, latestRecord.start, latestRecord.stop);
+        postAudio(latestRecord.file, userId, postDate, latestRecord.start, latestRecord.stop);
     }
 
+    //function to stop and then start record after 500 milliseconds
     async function cutRecord() {
         await stopRecording().then(setTimeout(() => {
             startRecording();
         }, 500));
     }
 
-
-
+    //funtion for test recording result
     function getRecordingLines() {
         return recordings.map((recordingLine, index) => {
             return (
@@ -199,18 +224,11 @@ export default function App() {
         });
     }
 
-    function clearRecordings() {
-        setRecordings([])
-    }
-
     return (
         <View style={{ flex: 1 }} >
             <ImageBackground style={styles.container} source={bg}>
-                {/* <Button title={recording ? 'Stop Recording' : 'Start Recording\n\n\n'} onPress={recording ? stopRecording : startRecording} /> */}
-                {/* {getRecordingLines()}
-                <Button title={recordings.length > 0 ? '\n\n\nClear Recordings' : ''} onPress={clearRecordings} /> */}
                 <ImageBackground source={waveLine} style={{ width: '100%', alignItems: 'center' }}>
-                    <View style={[styles.recordButtonBack,{backgroundColor: recording? 'rgba(79, 245, 39, 0.5)': 'rgba(211, 190, 11, 0.5)'}]}>
+                    <View style={[styles.recordButtonBack, { backgroundColor: recording ? 'rgba(79, 245, 39, 0.5)' : 'rgba(211, 190, 11, 0.5)' }]}>
                         <TouchableOpacity style={styles.recordButton} onPress={recording ? stopRecording : startRecording}>
                             <Feather name="mic" size={70} color="white" />
                         </TouchableOpacity>
@@ -219,6 +237,7 @@ export default function App() {
                 <Text style={styles.statusText}>
                     {recording ? 'stop record' : 'start record'}
                 </Text>
+                {/* {getRecordingLines()} */}
             </ImageBackground>
         </View>
     );
@@ -246,7 +265,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(211, 190, 11, 1)',
         padding: 20,
         borderRadius: 100,
-        // color:'yellow',
     },
     recordButtonBack: {
         backgroundColor: 'rgba(211, 190, 11, 0.5)',
@@ -257,7 +275,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         color: 'white',
-        marginBottom:10
+        marginBottom: 10
     },
     FactorBt: {
         backgroundColor: 'yellow',
