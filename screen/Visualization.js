@@ -161,7 +161,7 @@ export default function Visualization() {
               width={Math.max(Dimensions.get('window').width, totalSeconds * 10)}
               height={200}
               chartConfig={chartConfig}
-              style={{ paddingTop: 10 }}
+              style={{ paddingTop: 10, paddingBottom:10 }}
               formatYLabel={(value) => (value === 1 ? 'Snoring' : '')}
               yAxisInterval={1}
             />
