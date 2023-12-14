@@ -8,7 +8,7 @@ import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import bg from '../assets/wave2layer.png';
 //import recoil state
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { currentDate, currentUserId, totalCalls, totalSleeptime } from "../ApiState";
+import { currentDate, currentUserId, totalCalls, totalSleeptime } from "../RecoilState";
 //import axios for using api method
 import axios from "axios";
 //import audio fot soundplay
@@ -61,7 +61,7 @@ export default function Visualization() {
     const fetchData = async () => {
       setVisualData([]);
       setChartData([]);
-      const http = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/getpredict';
+      const http = 'http://Snorewise-mobile-env.eba-chmvh2mv.us-east-1.elasticbeanstalk.com/getpredict';
       let jsonPayload = {
         'user_id': uid,
         'date': postDate

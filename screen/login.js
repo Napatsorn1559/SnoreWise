@@ -16,7 +16,7 @@ import {
 import background from '../assets/background.png';
 import axios from 'axios';
 import { useRecoilState } from "recoil";
-import { currentUserId, currentUsername } from "../ApiState";
+import { currentUserId, currentUsername } from "../RecoilState";
 
 export default function LoginPage({ navigation}) {
     const [username, setUsername] = useState("");
@@ -28,7 +28,7 @@ export default function LoginPage({ navigation}) {
 
     const handleLogin = async () => {
         try {
-            const http = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/login';
+            const http = 'http://Snorewise-mobile-env.eba-chmvh2mv.us-east-1.elasticbeanstalk.com/login';
 
             let jsonPayload = {
                 'username': username,

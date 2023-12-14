@@ -12,7 +12,7 @@ import {
     ScrollView,
 } from "react-native";
 import bg from '../assets/wave2layer.png';
-import { currentUserId, currentUsername } from "../ApiState";
+import { currentUserId, currentUsername } from "../RecoilState";
 import { useRecoilState, useRecoilValue } from "recoil";
 import axios from "axios";
 
@@ -24,7 +24,7 @@ export default function Profile({ navigation }) {
     useEffect(() => {
         const fetchData = async () => {
             console.log(uid);
-            const http = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/getuser';
+            const http = 'http://Snorewise-mobile-env.eba-chmvh2mv.us-east-1.elasticbeanstalk.com/getuser';
             let jsonPayload = {
                 'user_id': uid,
             };
