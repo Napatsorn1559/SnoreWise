@@ -9,32 +9,45 @@ import { currentDate, currentUsername, totalCalls, totalSleeptime, currentUserId
 import bg from '../assets/background.png';
 import CalendarPicker from 'react-native-calendar-picker';
 
-import { fetchHomeSummaryData } from "../Api";
+import { requestSummaryData } from "../Api";
 
 export default function Home({ navigation }) {
     let uid = useRecoilValue(currentUserId);
     const [selectedDate, setSelectedDate] = useRecoilState(currentDate);  
     const [totalcall, setTotalcall] = useRecoilState(totalCalls);
     const [totalsleep, setTotalsleep] = useRecoilState(totalSleeptime);
+    const [sdata, setSData ] = useState([]);
 
     //set selected date from calendar picker
     const handleDateChange = (date) => {
         setSelectedDate(date);
     }
 
+    const secToDuration = (sec) => {
+        if ( sec <= 60){
+          return `${sec} sec`;
+        } else if (sec >= 60 && sec < 3600 ) {
+          return `${Math.floor(sec/60)} mins`
+        } else {
+          return `${Math.floor(sec/60*60)} hrs`
+        }
+      }
+
     //fetch data this tab is focused
     useFocusEffect(
         React.useCallback(()=>{
-            console.log('home page focused');
+            // console.log('home page focused');
             const fetchData = async () => {
                 //reset summary data
                 setTotalcall(0);
                 setTotalsleep(0);
 
                 try {
-                    const { totalcall, totalsleep } = await fetchHomeSummaryData(uid, selectedDate);
-                    setTotalcall(totalcall);
-                    setTotalsleep(totalsleep);
+                    const data = await requestSummaryData(uid, selectedDate);
+                    // console.log(data);
+                    setSData(data);
+                    // setTotalcall(data.intensity);
+                    // setTotalsleep(data.sleep_time);
                 } catch (error) {
                   console.error("Error fetching data:", error.message);
                 }
@@ -68,14 +81,14 @@ export default function Home({ navigation }) {
                         <View style={{ flexDirection: 'row', padding: 10 }}>
                             <MaterialCommunityIcons name="sleep" size={50} color="yellow" />
                             <View style={{ marginLeft: 20, justifyContent: 'space-evenly' }}>
-                                <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>14 min</Text>
+                                <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>{secToDuration(sdata.snoring)}</Text>
                                 <Text style={{ color: 'white' }}>snoring </Text>
                             </View>
                         </View>
                         <View style={{ flexDirection: 'row', padding: 10, paddingRight: 30 }}>
                             <MaterialCommunityIcons name="power-sleep" size={50} color="yellow" />
                             <View style={{ marginLeft: 20, justifyContent: 'space-evenly' }}>
-                                <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>{totalsleep} hrs</Text>
+                                <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>{secToDuration(sdata.sleep_time)}</Text>
                                 <Text style={{ color: 'white' }}>sleep time </Text>
                             </View>
                         </View>
@@ -84,14 +97,14 @@ export default function Home({ navigation }) {
                         <View style={{ flexDirection: 'row', padding: 10 }}>
                             <MaterialCommunityIcons name="sleep-off" size={50} color="yellow" />
                             <View style={{ marginLeft: 20, justifyContent: 'space-evenly' }}>
-                                <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>35 min</Text>
+                                <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>{secToDuration(sdata.non_snoring)}</Text>
                                 <Text style={{ color: 'white' }}>not snoring </Text>
                             </View>
                         </View>
                         <View style={{ flexDirection: 'row', padding: 10, paddingRight: 30 }}>
                             <Octicons name="graph" size={45} color="yellow" />
                             <View style={{ marginLeft: 20, justifyContent: 'space-evenly' }}>
-                                <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>{totalcall} times</Text>
+                                <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>{sdata.intensity} times</Text>
                                 <Text style={{ color: 'white' }}>intensity </Text>
                             </View>
                         </View>

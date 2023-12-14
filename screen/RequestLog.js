@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ImageBackground, TextInput, Button, TouchableWithoutFeedback } from "react-native";
 import waveBG from '../assets/top-bottom-bg.png';
+import * as Sharing from 'expo-sharing';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 export default function RequestLog() {
     const [date, setDate] = useState(new Date());
+    const [reqRecord, setReqrecord] = useState([]);
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
     const showDatePicker = () => {
@@ -22,11 +24,27 @@ export default function RequestLog() {
         }
     };
 
+        //funtion for test recording result
+        function getRecordingLines() {
+            return recordings.map((recordingLine, index) => {
+                return (
+                    <View key={index} style={styles.row}>
+                        <Text style={styles.fill}>
+                            Recording #{index + 1} | {recordingLine.duration}
+                        </Text>
+                        <Button onPress={() => recordingLine.sound.replayAsync()} title="Play"></Button>
+                        <Button onPress={() => postAudio(recordingLine.file)} title="post"></Button>
+                        <Button onPress={() => Sharing.shareAsync(recordingLine.file)} title="share"></Button>
+                    </View>
+                );
+            });
+        }
+
     return (
         <View style={{ flex: 1 }}>
             <ImageBackground style={styles.container} source={waveBG} >
                 <Text style={styles.tabHeaderText}>Request <Text style={{ color: 'yellow' }}>Log</Text></Text>
-                <TextInput style={styles.inputBox} placeholder="File type" placeholderTextColor="#fff" />
+                <TextInput style={styles.inputBox} placeholder="File type (audio file for now)" placeholderTextColor="#fff" />
                 <Text style={styles.Inputtext}>Start Date</Text>
                 <TouchableWithoutFeedback onPress={showDatePicker}>
                     <View style={styles.datePickerStyle}>
@@ -51,7 +69,7 @@ export default function RequestLog() {
                     onConfirm={handleConfirm}
                     onCancel={hideDatePicker}
                 />
-                <TextInput style={styles.inputBox} placeholder="Purpose" placeholderTextColor="#fff" />
+                {/* <TextInput style={styles.inputBox} placeholder="Purpose" placeholderTextColor="#fff" /> */}
                 <Button title='Submit' color='#03A9F4' onPress={() => { alert('Submitted') }} />
             </ImageBackground>
         </View>

@@ -139,7 +139,7 @@ export default function App() {
             return;
         };
 
-        let url = 'http://Snorewise-mobile-env.eba-chmvh2mv.us-east-1.elasticbeanstalk.com/send-audio';
+        let url = 'http://Snorewise-env.eba-gqgjifdg.us-east-1.elasticbeanstalk.com/send-audio';
         let filename = uri.split("/").pop();
         let nameNoWav = filename.split(".")[0];
         //encode sound for post via api
@@ -237,7 +237,7 @@ export default function App() {
                 <Text style={styles.statusText}>
                     {recording ? 'stop record' : 'start record'}
                 </Text>
-                {/* {getRecordingLines()} */}
+                {getRecordingLines()}
             </ImageBackground>
         </View>
     );

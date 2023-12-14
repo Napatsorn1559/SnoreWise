@@ -17,8 +17,9 @@ import background from '../assets/background.png';
 import axios from 'axios';
 import { useRecoilState } from "recoil";
 import { currentUserId, currentUsername } from "../RecoilState";
+import { requestLogin } from "../Api";
 
-export default function LoginPage({ navigation}) {
+export default function LoginPage({ navigation }) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [userId, setUserId] = useRecoilState(currentUserId);
@@ -28,27 +29,21 @@ export default function LoginPage({ navigation}) {
 
     const handleLogin = async () => {
         try {
-            const http = 'http://Snorewise-mobile-env.eba-chmvh2mv.us-east-1.elasticbeanstalk.com/login';
+            const response = await requestLogin(username, password);
 
-            let jsonPayload = {
-                'username': username,
-                'password': password
-            };
-
-            const response = await axios.post(http, jsonPayload);
-
-            if (response.status === 200 && response.data.error !== 'Invalid email') {
+            if (response.result == 'success') {
                 console.log("Login successful");
-                setUserId(response.data.user_id);
-                setUsernameR(response.data.username);
-                
+                setUserId(response.userId);
+                setUsernameR(response.username);
+
                 setTimeout(() => {
                     console.log(userId, 'is logged in')
                     navigation.navigate('loggedIn');
-                }, 150);
-                
+                }, 200);
             } else {
-                console.error("error",response.status,"Login failed : username or password is not correct");
+                // console.error("error",response.status,"Login failed : username or password is not correct");
+                alert('wrong username or password')
+
             }
 
         } catch (error) {

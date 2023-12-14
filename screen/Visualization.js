@@ -13,6 +13,7 @@ import { currentDate, currentUserId, totalCalls, totalSleeptime } from "../Recoi
 import axios from "axios";
 //import audio fot soundplay
 import { Audio } from "expo-av";
+import { requestRecordData } from "../Api";
 
 
 export default function Visualization() {
@@ -25,12 +26,20 @@ export default function Visualization() {
   const SoundPlayer = ({ soundFileUri }) => {
     const [sound, setSound] = useState();
     // console.log(soundFileUri);
+    let canPlay = false;
     async function playSound() {
       console.log("playSound click");
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: soundFileUri },
-        { shouldPlay: true }
-      );
+      const sound = new Audio.Sound();
+
+      await sound.loadAsync({
+        uri: soundFileUri
+      })
+      console.log(' playing sound');
+      await sound.playAsync()
+      // const { sound } = await Audio.Sound.createAsync(
+      //   { uri: soundFileUri },
+      //   { shouldPlay: true }
+      // );
       setSound(sound);
     }
 
@@ -50,42 +59,45 @@ export default function Visualization() {
   //use effect when selected date or user id changed
   useFocusEffect(
     React.useCallback(() => {
-    //reformat date for api post method
-    let createDate = new Date(selectedDate);
-    let year = createDate.getFullYear();
-    let month = createDate.getMonth() + 1;
-    let date = createDate.getDate();
-    let postDate = `${year}-${month}-${date}`;
+      //reformat date for api post method
+      let createDate = new Date(selectedDate);
+      let year = createDate.getFullYear();
+      let month = createDate.getMonth() + 1;
+      let date = createDate.getDate();
+      let postDate = `${year}-${month}-${date}`;
 
-    //fetch api
-    const fetchData = async () => {
-      setVisualData([]);
-      setChartData([]);
-      const http = 'http://Snorewise-mobile-env.eba-chmvh2mv.us-east-1.elasticbeanstalk.com/getpredict';
-      let jsonPayload = {
-        'user_id': uid,
-        'date': postDate
+      //fetch api
+      const fetchData = async () => {
+        setVisualData([]);
+        setChartData([]);
+        const http = 'http://Snorewise-env.eba-gqgjifdg.us-east-1.elasticbeanstalk.com/getpredict';
+        let jsonPayload = {
+          'user_id': uid,
+          'date': postDate
+        };
+
+        try {
+          // console.log(requestRecordData(uid, postDate));
+          const response = await axios.post(http, jsonPayload);
+          if (response.data.response.length > 0) {
+            //set data format
+            const modelResults = response.data.response.map(item => JSON.parse(item.model_result));
+            const cleanChartData = modelResults.flat().filter(value => !isNaN(value) && isFinite(value));
+
+            setVisualData([response.data.response]);
+            setChartData(cleanChartData);
+          }else{
+            alert('no recorded data');
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error.message);
+        }
       };
 
-      try {
-        const response = await axios.post(http, jsonPayload);
-        if (response.data.response.length > 0) {
-          //set data format
-          const modelResults = response.data.response.map(item => JSON.parse(item.model_result));
-          const cleanChartData = modelResults.flat().filter(value => !isNaN(value) && isFinite(value));
+      //check if it's not  defualt user id before fetchdata
+      if (uid !== 0) { fetchData() };
 
-          setVisualData([response.data.response]);
-          setChartData(cleanChartData);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error.message);
-      }
-    };
-
-    //check if it's not  defualt user id before fetchdata
-    if (uid !== 0) { fetchData() };
-
-  }, [selectedDate, uid])
+    }, [selectedDate, uid])
   );
 
   //default dataset for line chart
@@ -161,7 +173,7 @@ export default function Visualization() {
               width={Math.max(Dimensions.get('window').width, totalSeconds * 10)}
               height={200}
               chartConfig={chartConfig}
-              style={{ paddingTop: 10, paddingBottom:10 }}
+              style={{ paddingTop: 10, paddingBottom: 10 }}
               formatYLabel={(value) => (value === 1 ? 'Snoring' : '')}
               yAxisInterval={1}
             />
@@ -169,7 +181,7 @@ export default function Visualization() {
         </ScrollView>
 
         <FlatList
-          style={{ marginBottom: 40 }}
+          style={{height: 500 }}
           data={visualData[0]}
           renderItem={({ item }) => (
             <View style={styles.timestampContainer}>
@@ -179,13 +191,14 @@ export default function Visualization() {
                   <Text style={{ color: 'white', fontSize: 15, fontWeight: '500' }}>duration {calculateDuration(item.time_start, item.time_stop)} mins</Text>
                   <Text style={{ color: 'white', fontSize: 15, fontWeight: '500' }}>intensity {item.calls == null ? 0 : item.calls} times</Text>
                 </View>
-                {/* <SoundPlayer soundFileUri={item.path} /> */}
+                <SoundPlayer soundFileUri={item.path} />
               </View>
               <View style={styles.separator} />
             </View>
           )}
         />
       </View>
+      
     </ImageBackground>
   );
 }
