@@ -21,7 +21,7 @@ import bg from '../assets/top-bottom-bg.png';
 import waveLine from '../assets/horizontalWaveLine.png'
 //import recoil state
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { currentDate, currentUserId } from '../ApiState';
+import { currentDate, currentUserId } from '../RecoilState';
 
 export default function App() {
     const [recording, setRecording] = React.useState();

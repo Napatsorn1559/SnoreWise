@@ -4,12 +4,12 @@ import { MaterialCommunityIcons, Octicons, Entypo, MaterialIcons, FontAwesome5 }
 import { useFocusEffect } from '@react-navigation/native';
 //import recoil state
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { currentDate, currentUsername, totalCalls, totalSleeptime, currentUserId } from '../ApiState';
-//import axios for using api method
-import  axios  from "axios";
+import { currentDate, currentUsername, totalCalls, totalSleeptime, currentUserId } from '../RecoilState';
 //import image
 import bg from '../assets/background.png';
 import CalendarPicker from 'react-native-calendar-picker';
+
+import { fetchHomeSummaryData } from "../Api";
 
 export default function Home({ navigation }) {
     let uid = useRecoilValue(currentUserId);
@@ -22,23 +22,6 @@ export default function Home({ navigation }) {
         setSelectedDate(date);
     }
 
-    //reformat date for api post method
-    let createDate = new Date(selectedDate);
-    let year = createDate.getFullYear();
-    let month = createDate.getMonth() + 1;
-    let date = createDate.getDate();
-    let postDate = `${year}-${month}-${date}`;
-    // console.log("date for post get predict ->", postDate);
-
-    //function for calculate duration in hours
-    const calculateHourDuration = (timeStart, timeStop) => {
-        const start = new Date(`1970-01-01T${timeStart}`);
-        const stop = new Date(`1970-01-01T${timeStop}`);
-        const durationInMilliseconds = stop - start;
-        const durationInHour = durationInMilliseconds / (1000 * 60 *60);
-        return Math.round(durationInHour);
-      };
-
     //fetch data this tab is focused
     useFocusEffect(
         React.useCallback(()=>{
@@ -48,29 +31,17 @@ export default function Home({ navigation }) {
                 setTotalcall(0);
                 setTotalsleep(0);
 
-                const http = 'http://Snorewise-mobile-env.eba-chmvh2mv.us-east-1.elasticbeanstalk.com/getpredict';
-                let jsonPayload = {
-                  'user_id': uid,
-                  'date': postDate
-                };
-                
                 try {
-                  const response = await axios.post(http, jsonPayload);
-                  console.log('data length :',response.data.response.length);
-                  if (response.data.response.length > 0) {
-                    const sumcall = response.data.response?.reduce((total, item) => total + (item.calls || 0), 0) || 0;
-                    const firstStartTime = response.data.response[0]?.time_start;
-                    const lastStopTime =response.data.response[response.data.response.length - 1]?.time_stop;
-                    
-                    setTotalcall(sumcall);
-                    setTotalsleep(calculateHourDuration(firstStartTime, lastStopTime));
-                  }
+                    const { totalcall, totalsleep } = await fetchHomeSummaryData(uid, selectedDate);
+                    setTotalcall(totalcall);
+                    setTotalsleep(totalsleep);
                 } catch (error) {
                   console.error("Error fetching data:", error.message);
                 }
               };
-
+            
             fetchData();
+
         },[selectedDate])
     );
 
@@ -94,18 +65,11 @@ export default function Home({ navigation }) {
                 </View>
                 <View style={{ paddingVertical: 10 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        {/* <View style={{ flexDirection: 'row', padding: 10 }}>
+                        <View style={{ flexDirection: 'row', padding: 10 }}>
                             <MaterialCommunityIcons name="sleep" size={50} color="yellow" />
                             <View style={{ marginLeft: 20, justifyContent: 'space-evenly' }}>
                                 <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>14 min</Text>
                                 <Text style={{ color: 'white' }}>snoring </Text>
-                            </View>
-                        </View> */}
-                        <View style={{ flexDirection: 'row', padding: 10, paddingRight: 30 }}>
-                            <Octicons name="graph" size={45} color="yellow" />
-                            <View style={{ marginLeft: 20, justifyContent: 'space-evenly' }}>
-                                <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>{totalcall} times</Text>
-                                <Text style={{ color: 'white' }}>intensity </Text>
                             </View>
                         </View>
                         <View style={{ flexDirection: 'row', padding: 10, paddingRight: 30 }}>
@@ -116,7 +80,7 @@ export default function Home({ navigation }) {
                             </View>
                         </View>
                     </View>
-                    {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <View style={{ flexDirection: 'row', padding: 10 }}>
                             <MaterialCommunityIcons name="sleep-off" size={50} color="yellow" />
                             <View style={{ marginLeft: 20, justifyContent: 'space-evenly' }}>
@@ -127,14 +91,14 @@ export default function Home({ navigation }) {
                         <View style={{ flexDirection: 'row', padding: 10, paddingRight: 30 }}>
                             <Octicons name="graph" size={45} color="yellow" />
                             <View style={{ marginLeft: 20, justifyContent: 'space-evenly' }}>
-                                <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>level 1</Text>
-                                <Text style={{ color: 'white' }}>index </Text>
+                                <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>{totalcall} times</Text>
+                                <Text style={{ color: 'white' }}>intensity </Text>
                             </View>
                         </View>
-                    </View> */}
+                    </View>
                 </View>
 
-                {/* <View  style={[{flexDirection: 'row', justifyContent: 'space-evenly', height:100}, styles.bglight]}>
+                <View  style={[{flexDirection: 'row', justifyContent: 'space-evenly', height:100}, styles.bglight]}>
                     <Text style={{color: 'white', fontSize: 20, fontWeight: 700 , paddingLeft: 10}}>other ?</Text>
                     <TouchableOpacity style={styles.FactorBt} onPress={()=>{console.log("addData-drink")}} >
                     <MaterialIcons name="wine-bar" size={45} color="black" />
@@ -148,7 +112,7 @@ export default function Home({ navigation }) {
                     <MaterialIcons name="directions-run" size={45} color="black" />
                         <Text>exercise</Text>
                     </TouchableOpacity>
-                </View> */}
+                </View>
             </ImageBackground>
         </View>
     )

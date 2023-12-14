@@ -12,7 +12,7 @@ import {
     ScrollView,
 } from "react-native";
 import bg from '../assets/wave2layer.png';
-import { currentUserId, currentUsername } from "../ApiState";
+import { currentUserId, currentUsername } from "../RecoilState";
 import { useRecoilState, useRecoilValue } from "recoil";
 import axios from "axios";
 
