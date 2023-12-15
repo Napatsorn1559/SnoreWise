@@ -37,7 +37,7 @@ export default function LoginPage({ navigation }) {
                 setUsernameR(response.username);
 
                 setTimeout(() => {
-                    console.log(userId, 'is logged in')
+                    console.log('user id ',userId, 'is logged in')
                     navigation.navigate('loggedIn');
                 }, 200);
             } else {

@@ -84,7 +84,7 @@ export const requestLogin = async (username, password) => {
   }
 }
 
-export const requestAudioData = async(uid,selectDate) => {
+export const requestAudioUri = async (uid, selectDate) => {
   let postDate = ApiDateFormat(selectDate);
 
   let http = `${API_DOMAIN}/getpredict`;
@@ -95,23 +95,62 @@ export const requestAudioData = async(uid,selectDate) => {
 
   try {
     const result = await axios.post(http, jsonPayload);
-    if(result.data.response.length > 0){
-       //set data format
-      const modelResults = response.data.response.map(item => JSON.parse(item.model_result));
-      const cleanChartData = modelResults.flat().filter(value => !isNaN(value) && isFinite(value));
-      return{
-        visualData: [result.data.response],
-        chartData: cleanChartData
-      }
-    }else{
+    // console.log(result.data.response);
+    if (result.data.response.length > 0) {
+      //set data format
+      const modelResults = result.data.response.map(item => item.path);
+      // console.log(modelResults[0]); //mock up choosing first sound of the day
+      // const cleanChartData = modelResults.flat().filter(value => !isNaN(value) && isFinite(value));
+
+      return {
+        uri: modelResults[0]
+      };
+    } else {
       alert('No Data');
-      return{
-        visualData: [0],
-        chartData: 0
+      return {
+        uri: 'none'
       }
     }
   } catch (error) {
-    console.error("Error fetching data:", error.message);
-    
+    console.error(" requestAudioUri Error:", error.message);
   }
 }
+
+export const updateFactor = async (uid, selectDate, factorName, factorResult) => {
+  let postDate = ApiDateFormat(selectDate);
+  let http = `${API_DOMAIN}/update-factor`;
+
+  switch (factorName) {
+    case 'alcohol':
+      jsonPayload = {
+        'user_id': uid,
+        'date': postDate,
+        'alcohol': factorResult
+      }
+      break;
+    case 'stress':
+      jsonPayload = {
+        'user_id': uid,
+        'date': postDate,
+        'stress': factorResult
+      }
+      break;
+    case 'exercise':
+      jsonPayload = {
+        'user_id': uid,
+        'date': postDate,
+        'exercise': factorResult
+      }
+    default:
+      break;
+  }
+
+  try {
+    const result = await axios.put(http, jsonPayload);
+    // console.log(result.data);
+  } catch (error) {
+    console.error('Update Alcohol Factor Fail');
+  }
+}
+
+

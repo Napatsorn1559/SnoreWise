@@ -4,19 +4,18 @@ import { MaterialCommunityIcons, Octicons, Entypo, MaterialIcons, FontAwesome5 }
 import { useFocusEffect } from '@react-navigation/native';
 //import recoil state
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { currentDate, currentUsername, totalCalls, totalSleeptime, currentUserId } from '../RecoilState';
+import { currentDate, currentUsername, currentUserId } from '../RecoilState';
 //import image
 import bg from '../assets/background.png';
 import CalendarPicker from 'react-native-calendar-picker';
 
-import { requestSummaryData } from "../Api";
+import { requestSummaryData, updateFactor } from "../Api";
 
 export default function Home({ navigation }) {
     let uid = useRecoilValue(currentUserId);
     const [selectedDate, setSelectedDate] = useRecoilState(currentDate);  
-    const [totalcall, setTotalcall] = useRecoilState(totalCalls);
-    const [totalsleep, setTotalsleep] = useRecoilState(totalSleeptime);
     const [sdata, setSData ] = useState([]);
+    const [refreshTrigger, setRefreshTrigger] = useState(false);
 
     //set selected date from calendar picker
     const handleDateChange = (date) => {
@@ -38,16 +37,11 @@ export default function Home({ navigation }) {
         React.useCallback(()=>{
             // console.log('home page focused');
             const fetchData = async () => {
-                //reset summary data
-                setTotalcall(0);
-                setTotalsleep(0);
 
                 try {
                     const data = await requestSummaryData(uid, selectedDate);
                     // console.log(data);
                     setSData(data);
-                    // setTotalcall(data.intensity);
-                    // setTotalsleep(data.sleep_time);
                 } catch (error) {
                   console.error("Error fetching data:", error.message);
                 }
@@ -55,8 +49,13 @@ export default function Home({ navigation }) {
             
             fetchData();
 
-        },[selectedDate])
+        },[selectedDate, refreshTrigger])
     );
+
+    const handleFactorUpdate = (factor, boolean) => {
+        updateFactor(uid, selectedDate,factor, boolean);
+        setRefreshTrigger((prev) => !prev); 
+    }
 
     return (
         <View style={{ flex: 1 }}>
@@ -113,15 +112,15 @@ export default function Home({ navigation }) {
 
                 <View  style={[{flexDirection: 'row', justifyContent: 'space-evenly', height:100}, styles.bglight]}>
                     <Text style={{color: 'white', fontSize: 20, fontWeight: 700 , paddingLeft: 10}}>other ?</Text>
-                    <TouchableOpacity style={styles.FactorBt} onPress={()=>{console.log("addData-drink")}} >
+                    <TouchableOpacity style={[styles.FactorBt, {backgroundColor: sdata.alcohol ? 'rgba(255,255,255,0.5)': 'yellow'}]} onPress={()=>{handleFactorUpdate('alcohol', !sdata.alcohol)}} >
                     <MaterialIcons name="wine-bar" size={45} color="black" />
                         <Text>drinks</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.FactorBt} onPress={()=>{console.log("addData-stress")}} >
+                    <TouchableOpacity style={[styles.FactorBt, {backgroundColor: sdata.stress ? 'rgba(255,255,255,0.5)': 'yellow'}]} onPress={()=>{handleFactorUpdate('stress', !sdata.stress)}} >
                     <FontAwesome5 name="tired" size={40} color="black" />
                         <Text>stress</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.FactorBt} onPress={()=>{console.log("addData-exercise")}} >
+                    <TouchableOpacity style={[styles.FactorBt, {backgroundColor: sdata.exercise ? 'rgba(255,255,255,0.5)': 'yellow'}]} onPress={()=>{handleFactorUpdate('exercise', !sdata.exercise)}} >
                     <MaterialIcons name="directions-run" size={45} color="black" />
                         <Text>exercise</Text>
                     </TouchableOpacity>

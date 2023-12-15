@@ -26,7 +26,7 @@ import { currentDate, currentUserId } from '../RecoilState';
 export default function App() {
     const [recording, setRecording] = React.useState();
     const [recordings, setRecordings] = React.useState([]);
-    const [startRecord, setStartRecord] = React.useState();
+    const [startRecord, setStartRecord] = React.useState(new Date());
     const [postedAudioFiles, setPostedAudioFiles] = React.useState([]);
     const userId = useRecoilValue(currentUserId);
 
@@ -87,8 +87,8 @@ export default function App() {
                 setRecording(recording);
 
                 //create start record time
-                let startRec = new Date();
-                setStartRecord(startRec);
+                // let startRec = new Date();
+                // setStartRecord(startRec);
             }
         } catch (err) { console.error('Failed to start recording', err) }
     }
@@ -237,7 +237,7 @@ export default function App() {
                 <Text style={styles.statusText}>
                     {recording ? 'stop record' : 'start record'}
                 </Text>
-                {getRecordingLines()}
+                {/* {getRecordingLines()} */}
             </ImageBackground>
         </View>
     );

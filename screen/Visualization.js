@@ -13,7 +13,6 @@ import { currentDate, currentUserId, totalCalls, totalSleeptime } from "../Recoi
 import axios from "axios";
 //import audio fot soundplay
 import { Audio } from "expo-av";
-import { requestRecordData } from "../Api";
 
 
 export default function Visualization() {
@@ -25,23 +24,23 @@ export default function Visualization() {
   //function for playing recorded sound 
   const SoundPlayer = ({ soundFileUri }) => {
     const [sound, setSound] = useState();
-    // console.log(soundFileUri);
-    let canPlay = false;
+    const [isPlaying, setIsPlaying] = useState(false);
+
     async function playSound() {
       console.log("playSound click");
-      const sound = new Audio.Sound();
-
-      await sound.loadAsync({
-        uri: soundFileUri
-      })
-      console.log(' playing sound');
-      await sound.playAsync()
-      // const { sound } = await Audio.Sound.createAsync(
-      //   { uri: soundFileUri },
-      //   { shouldPlay: true }
-      // );
-      setSound(sound);
+    if (isPlaying) {
+      await sound.stopAsync();
+      await sound.unloadAsync();
+    } else {
+      const newSound = new Audio.Sound();
+      await newSound.loadAsync({
+        uri: soundFileUri,
+      });
+      setSound(newSound);
+      await newSound.playAsync();
     }
+    setIsPlaying(!isPlaying);
+  }
 
     useEffect(() => {
       return sound ? () => sound.unloadAsync() : undefined;
@@ -50,7 +49,7 @@ export default function Visualization() {
     return (
       <View>
         <TouchableOpacity style={{ backgroundColor: 'rgba(255,255,255,0.8)', padding: 5, borderRadius: 5 }} onPress={playSound}>
-          <AntDesign name="sound" size={24} color="black" />
+          <AntDesign name={isPlaying ? "pause" : "sound"} size={24} color="black" />
         </TouchableOpacity>
       </View>
     );
@@ -86,7 +85,7 @@ export default function Visualization() {
 
             setVisualData([response.data.response]);
             setChartData(cleanChartData);
-          }else{
+          } else {
             alert('no recorded data');
           }
         } catch (error) {
@@ -181,7 +180,7 @@ export default function Visualization() {
         </ScrollView>
 
         <FlatList
-          style={{height: 500 }}
+          style={{ height: 500 }}
           data={visualData[0]}
           renderItem={({ item }) => (
             <View style={styles.timestampContainer}>
@@ -198,7 +197,7 @@ export default function Visualization() {
           )}
         />
       </View>
-      
+
     </ImageBackground>
   );
 }
