@@ -15,6 +15,9 @@ import { useNavigation } from '@react-navigation/native';
 import { AntDesign } from '@expo/vector-icons';
 import RNPickerSelect from 'react-native-picker-select';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { getDomain } from "../Api";
+
 
 export default function Register({ navigation }) {
   const [step, setStep] = useState(1);
@@ -87,12 +90,8 @@ export default function Register({ navigation }) {
   const handleConfirm = (selectedDate) => {
     hideDatePicker();
     setDate(selectedDate);
-    const formattedDate = selectedDate.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-    });
-    setFormData({ ...formData, birthday: formattedDate });
+    const formattedDate = selectedDate.toISOString().split('T')[0];
+    setFormData({ ...formData, birthday: formattedDate });  
   };
 
 
@@ -280,7 +279,9 @@ export default function Register({ navigation }) {
 
 
   async function postRegis(data) {
-    let url = 'http://Snorewise-mobile-env.eba-chmvh2mv.us-east-1.elasticbeanstalk.com/create-user';
+
+    const API_DOMAIN = await getDomain();
+    let url = `${API_DOMAIN}/create-user`;
 
     // const data = JSON.stringify({
     //   username: us,

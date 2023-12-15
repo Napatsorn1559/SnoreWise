@@ -19,6 +19,9 @@ const calculateHourDuration = (timeStart, timeStop) => {
   return Math.round(durationInHour);
 };
 
+export const getDomain = async () => {
+  return API_DOMAIN;
+};
 
 export const requestSummaryData = async (uid, selectDate) => {
 
@@ -162,4 +165,8 @@ export const requestNotification = async(uid) =>{
   const result = await axios.post(http);
   // console.log('api page',result.data);
   return result.data;
+}
+
+export const reformatDate = (date) => {
+  return ApiDateFormat(date)
 }
