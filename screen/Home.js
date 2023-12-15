@@ -4,7 +4,7 @@ import { MaterialCommunityIcons, Octicons, Entypo, MaterialIcons, FontAwesome5 }
 import { useFocusEffect } from '@react-navigation/native';
 //import recoil state
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { currentDate, currentUsername, totalCalls, totalSleeptime, currentUserId } from '../ApiState';
+import { currentDate, currentUsername, totalCalls, totalSleeptime, currentUserId } from '../RecoilState';
 //import axios for using api method
 import  axios  from "axios";
 //import image
@@ -48,7 +48,7 @@ export default function Home({ navigation }) {
                 setTotalcall(0);
                 setTotalsleep(0);
 
-                const http = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/getpredict';
+                const http = 'http://Snorewise-env.eba-gqgjifdg.us-east-1.elasticbeanstalk.com/getpredict';
                 let jsonPayload = {
                   'user_id': uid,
                   'date': postDate

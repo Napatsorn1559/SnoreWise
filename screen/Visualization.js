@@ -8,7 +8,7 @@ import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import bg from '../assets/wave2layer.png';
 //import recoil state
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { currentDate, currentUserId, totalCalls, totalSleeptime } from "../ApiState";
+import { currentDate, currentUserId, totalCalls, totalSleeptime } from "../RecoilState";
 //import axios for using api method
 import axios from "axios";
 //import audio fot soundplay
