@@ -12,9 +12,13 @@ import {
     ScrollView,
 } from "react-native";
 import bg from '../assets/wave2layer.png';
-import { currentUserId, currentUsername } from "../ApiState";
+import { currentUserId, currentUsername } from "../RecoilState";
 import { useRecoilState, useRecoilValue } from "recoil";
 import axios from "axios";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { getDomain } from "../Api";
+
+
 
 export default function Profile({ navigation }) {
     // const [userId, setUserId] = useRecoilState(currentUserId);
@@ -22,11 +26,40 @@ export default function Profile({ navigation }) {
     const [profile, setProfile] = useState([]);
     const [editableProfile, setEditableProfile] = useState({});
     const [isEditing, setIsEditing] = useState(false); // track edit mode
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [bday, setBday] = useState('');
+    const [gender, setGender] = useState('');
+    const [nationality, setNationality] = useState('');
+    const [height, setHeight] = useState('');
+    const [weight, setWeight] = useState('');
+    const [medCondition, setMedCondition] = useState('');
+
+
+    const showDatePicker = () => {
+        setDatePickerVisibility(true);
+      };
+      
+      const hideDatePicker = () => {
+        setDatePickerVisibility(false);
+      };
+      
 
     useEffect(() => {
         const fetchData = async () => {
             console.log(uid);
-            const http = 'http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/getuser';
+
+            // console.log("Hello");
+            // console.log("see profile.birthday >> ", profile.birthday);
+            // console.log("see originalBday >> ", originalBday);
+            // console.log("see editableProfile.birthday >> ", editableProfile.birthday);
+            // console.log("see bda >> ", bday);
+
+            const API_DOMAIN = await getDomain();
+            const http = `http://${API_DOMAIN}/getuser`;
             let jsonPayload = {
                 'user_id': uid,
             };
@@ -34,16 +67,25 @@ export default function Profile({ navigation }) {
             try {
                 const response = await axios.post(http, jsonPayload);
                 // console.log(JSON.stringify(response.data));
+                setFirstName(response.data.firstname);
+                setLastName(response.data.lastname);
+                setBday(response.data.birthday);
+                setEmail(response.data.email);
+                setGender(response.data.gender);
+                setNationality(response.data.nationality);
+                setHeight(response.data.height);
+                setWeight(response.data.weight);
+                setMedCondition(response.data.medical_condition);
+
                 setProfile(response.data);
             } catch (error) {
                 console.error("Error fetching data:", error.message);
             }
         };
 
-        if(uid !== 0){ fetchData(); }
-    }, [uid]); // Only run the effect when userId changes
+        if (uid !== 0) { fetchData(); }
+    }, [uid, isEditing, profile.birthday, profile.height, profile.weight]);// Only run the effect when userId changes
 
-    let bdate = new Date(profile.birthday)
 
     // editable
     const handleEdit = (field, value) => {
@@ -51,17 +93,26 @@ export default function Profile({ navigation }) {
             ...editableProfile,
             [field]: value,
         });
+
+        //setHeight(profile.height);
+        //setWeight(profile.weight);
+
+
         console.log("you are in handleEdit");
-        setIsEditing(true); 
+        setIsEditing(true);
         console.log(isEditing);
+        // console.log("see profile.birthday >> ", profile.birthday);
+        // console.log("see originalBday >> ", originalBday);
+        // console.log("see editableProfile.birthday >> ", editableProfile.birthday);
+        // console.log("see bda >> ", bday);
     };
 
 
     // save & update data
     const handleSave = async () => {
         try {
-            
-            const post_url = `http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/update-user/${uid}`;
+            const API_DOMAIN = await getDomain();
+            const post_url = `http://${API_DOMAIN}/update-user/${uid}`;
 
             console.log("you are in handleSave");
             console.log("user id =", uid);
@@ -72,33 +123,31 @@ export default function Profile({ navigation }) {
             // // update the local state with the saved information.
             //     setProfile(response.data);
             // }
-
-            if (isEditing) {
-                response = await fetch(post_url, {
-                    method: "PUT",
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(editableProfile),
-                });
-            
-
-                if (isEditing && !response.ok) {
-                    console.error("Update failed:", response.status, response.statusText);
-                    const responseData = await response.text(); // Log the full response
-                    console.error("Full response:", responseData);
-                    return;
-                }
-
-                // Fetch the updated data from the server after a successful update
-                const updatedDataResponse = await axios.post('http://Snorewise-env.eba-c5juuwae.us-east-1.elasticbeanstalk.com/getuser', {
-                    user_id: uid,
-                });
-
-                setProfile(updatedDataResponse.data);
+            let payload = {
+                "birthday": bday, 
+                "email": email, 
+                "firstname": firstName, 
+                "gender": gender, 
+                "height": height, 
+                "lastname": lastName, 
+                "medical_condition": medCondition,
+                "nationality": nationality,
+                "weight": weight
             }
 
-            setIsEditing(false); 
+
+            if (isEditing) {
+                const response = await axios.put(post_url, payload)
+                    .then((response) => { console.log(response.data) })
+                    .catch((error) => { console.error("update profile fail", error); })
+            }
+
+            // console.log("see profile.birthday >> ", profile.birthday);
+            // console.log("see originalBday >> ", originalBday);
+            // console.log("see editableProfile.birthday >> ", editableProfile.birthday);
+            // console.log("see bda >> ", bday);
+
+            setIsEditing(false);
             console.log("update success");
         } catch (error) {
             console.error("Error updating data:", error.message);
@@ -120,7 +169,7 @@ export default function Profile({ navigation }) {
                 </View>
 
                 <View style={styles.profile}>
-                    <Image style={styles.image} source={require('../assets/temp_logo.png')} />  
+                    <Image style={styles.image} source={require('../assets/temp_logo.png')} />
                     <View style={styles.profileInfo}>
                         <Text style={{ color: 'white', fontSize: 20, fontWeight: '700' }}>{profile.username}</Text>
                     </View>
@@ -134,114 +183,129 @@ export default function Profile({ navigation }) {
                             {isEditing ? (
                                 <TextInput
                                     style={styles.Inputtext}
-                                    value={editableProfile.firstname || profile.firstname}
-                                    onChangeText={(text) => handleEdit("firstname", text)}
+                                    value={firstName}
+                                    onChangeText={(text) => setFirstName(text)}
                                 />
                             ) : (
-                                <Text style={styles.Inputtext}>{profile.firstname}</Text>
+                                <Text style={styles.Inputtext}>{firstName}</Text>
                             )}
                         </View>
                         <View style={[styles.inputBox, styles.inlineBox]}>
                             <Text style={styles.titleText}>Lastname</Text>
-                            {/* <Text style={styles.Inputtext}>{profile.lastname}</Text> */}
-                            {isEditing ? (
-                                <TextInput
-                                    style={styles.Inputtext}
-                                    value={editableProfile.lastname || profile.lastname}
-                                    onChangeText={(text) => handleEdit("lastname", text)}
-                                />
-                            ) : (
-                                <Text style={styles.Inputtext}>{profile.lastname}</Text>
-                            )}
+                            {isEditing ? (<TextInput
+                                style={styles.Inputtext}
+                                value={lastName}
+                                onChangeText={(text) => setLastName(text)}
+                            />) :( <Text style={styles.Inputtext}>{lastName}</Text>)}
                         </View>
                     </View>
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>E-mail</Text>
-                        {/* <Text style={styles.Inputtext}>{profile.email}</Text> */}
-                        {isEditing ? (
-                            <TextInput
-                                style={styles.Inputtext}
-                                value={editableProfile.email || profile.email}
-                                onChangeText={(text) => handleEdit("email", text)}
-                            />
-                        ) : (
-                            <Text style={styles.Inputtext}>{profile.email}</Text>
-                        )}
+                        {isEditing ? <TextInput
+                            style={styles.Inputtext}
+                            value={email}
+                            onChangeText={(text) => setEmail(text)}
+                        /> : <Text style={styles.Inputtext}>{email}</Text>}
                     </View>
+                    {/* <View style={styles.inputBox}>
+                        <Text style={styles.titleText}>Date of Birth</Text>
+                        {isEditing ? <TextInput
+                            style={styles.Inputtext}
+                            value={bday}
+                            onChangeText={(text) => setBday(text)}
+                        /> : <Text style={styles.Inputtext}>{bday.toString()}</Text>}
+                    </View> */}
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>Date of Birth</Text>
-                        <Text style={styles.Inputtext}>{bdate.toUTCString().slice(0,-12)}</Text>
+                        {isEditing ? (
+                            <View>
+                                <TextInput
+                                    style={styles.Inputtext}
+                                    value={`${bday}`}
+                                    onTouchStart={showDatePicker}
+                                    editable={false}  // Disable manual typing
+                                />
+                                <DateTimePickerModal
+                                    isVisible={isDatePickerVisible}
+                                    mode="date"
+                                    display="spinner"
+                                    // date={new Date(bday)}
+                                    onConfirm={(date) => {
+                                        setBday(date.toISOString().split('T')[0]);
+                                        hideDatePicker();
+                                    }}
+                                    onCancel={hideDatePicker}
+                                    placeholder={new Date(bday).toLocaleDateString('en-US', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                    })}
+                                />
+                            </View>
+                        ) : (
+                            // <Text style={styles.Inputtext}>{bday.toString()}</Text>
+                            <Text style={styles.Inputtext}>
+                                {new Date(bday).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                })}
+                            </Text>
+                        )}
                     </View>
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>Gender</Text>
-                        {/* <Text style={styles.Inputtext}>{profile.gender}</Text> */}
-                        {isEditing ? (
-                            <TextInput
-                                style={styles.Inputtext}
-                                value={editableProfile.gender || profile.gender}
-                                onChangeText={(text) => handleEdit("gender", text)}
-                            />
-                        ) : (
-                            <Text style={styles.Inputtext}>{profile.gender}</Text>
-                        )}
+                        {isEditing ? (<TextInput
+                            style={styles.Inputtext}
+                            value={gender}
+                            onChangeText={(text) => setGender(text)}
+                        />) : <Text style={styles.Inputtext}>{gender}</Text>}
                     </View>
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>Nationality</Text>
-                        {/* <Text style={styles.Inputtext}>{profile.nationality}</Text> */}
-                        {isEditing ? (
-                            <TextInput
-                                style={styles.Inputtext}
-                                value={editableProfile.nationality || profile.nationality}
-                                onChangeText={(text) => handleEdit("nationality", text)}
-                            />
-                        ) : (
-                            <Text style={styles.Inputtext}>{profile.nationality}</Text>
-                        )}
+                        { isEditing? (<TextInput
+                            style={styles.Inputtext}
+                            placeholder="Enter your nationality"
+                            placeholderTextColor="grey"
+                            value={nationality}
+                            onChangeText={(text) => setNationality(text)}
+                        />) : <Text style={styles.Inputtext}>{nationality}</Text>}
                     </View>
                     <View style={styles.inlineContainer}>
                         <View style={[styles.inputBox, styles.inlineBox]}>
                             <Text style={styles.titleText}>Height</Text>
-                            {/* <Text style={styles.Inputtext}>{profile.height}</Text> */}
-                            {isEditing ? (
-                            <TextInput
+                            {isEditing ? (<TextInput
                                 style={styles.Inputtext}
-                                value={editableProfile.height || profile.height}
-                                onChangeText={(text) => handleEdit("height", text)}
-                            />
-                            ) : (
-                                <Text style={styles.Inputtext}>{profile.height}</Text>
-                            )}
+                                placeholder="Enter your height"
+                                placeholderTextColor="grey"
+                                value={height !== null ? `${height}` : ''}
+                                onChangeText={(height) => setHeight(height)}
+                            />) : <Text style={styles.Inputtext}>{height}</Text>}
                         </View>
                         <View style={[styles.inputBox, styles.inlineBox]}>
                             <Text style={styles.titleText}>Weight</Text>
-                            {/* <Text style={styles.Inputtext}>{profile.weight}</Text> */}
-                            {isEditing ? (
-                            <TextInput
+                          {isEditing ? (<TextInput
                                 style={styles.Inputtext}
-                                value={editableProfile.weight || profile.weight}
-                                onChangeText={(text) => handleEdit("weight", text)}
-                            />
-                            ) : (
-                                <Text style={styles.Inputtext}>{profile.weight}</Text>
-                            )}
+                                placeholder="Enter your ewight"
+                                placeholderTextColor="grey"
+                                value={weight !== null ? `${weight}` : ''}
+                                onChangeText={(text) => setWeight(text)}
+                            />) : <Text style={styles.Inputtext}>{weight}</Text>}
                         </View>
                     </View>
                     <View style={styles.inputBox}>
                         <Text style={styles.titleText}>Medical Condition</Text>
-                        {/* <Text style={styles.Inputtext}>{profile.medical_condition}</Text> */}
-                        {isEditing ? (
-                            <TextInput
-                                style={styles.Inputtext}
-                                value={editableProfile.medical_condition || profile.medical_condition}
-                                onChangeText={(text) => handleEdit("medical_condition", text)}
-                            />
-                        ) : (
-                            <Text style={styles.Inputtext}>{profile.medical_condition}</Text>
-                        )}
+                        { isEditing ? ( <TextInput
+                            style={styles.Inputtext}
+                            placeholder="Enter 'none' if you don't have any medical condition"
+                            placeholderTextColor="grey"
+                            value={medCondition}
+                            onChangeText={(text) => setMedCondition(text)}
+                        />) : <Text style={styles.Inputtext}>{medCondition}</Text>}
                     </View>
-                    <TouchableOpacity style={[styles.saveBtn, !isEditing ? styles.editBtn : styles.saveBtn,]} 
-                    onPress={!isEditing ? handleEdit : handleSave} >
-                        <Text style={!isEditing ? styles.editText : styles.saveText}> 
+                    <TouchableOpacity style={[styles.saveBtn, !isEditing ? styles.editBtn : styles.saveBtn,]}
+                        onPress={!isEditing ? handleEdit : handleSave} >
+                        <Text style={!isEditing ? styles.editText : styles.saveText}>
                             {!isEditing ? 'Edit' : 'Save'}
                         </Text>
                     </TouchableOpacity>
@@ -275,18 +339,18 @@ const styles = StyleSheet.create({
     },
     profileInfo: {
         alignItems: 'center',
-        marginTop: 15, 
+        marginTop: 15,
     },
     bglight: {
         color: 'white',
         backgroundColor: 'rgba(255,255,255,0.6)',
         alignItems: 'stretch',
         justifyContent: 'center',
-        borderTopLeftRadius:20,
-        borderTopRightRadius:20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
         padding: 10,
-        paddingTop:30,
-        paddingBottom:30,
+        paddingTop: 30,
+        paddingBottom: 30,
         marginHorizontal: 15,
     },
     logoutBtn: {
