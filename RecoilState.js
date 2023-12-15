@@ -25,3 +25,8 @@ export const totalSleeptime = atom({
   key: 'totalSleeptime',
   default: '0'
 })
+
+export const totalNotification = atom({
+  key: 'totalNotification',
+  default: '0'
+})

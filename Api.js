@@ -148,9 +148,18 @@ export const updateFactor = async (uid, selectDate, factorName, factorResult) =>
   try {
     const result = await axios.put(http, jsonPayload);
     // console.log(result.data);
+    if(result.data.error){
+      alert('invalid date: the selected date have no record')
+    }
   } catch (error) {
-    console.error('Update Alcohol Factor Fail');
+    console.error(`Update Factor Error: ${error}`);
   }
 }
 
+export const requestNotification = async(uid) =>{
+  let http = `${API_DOMAIN}/notify/${uid}`;
 
+  const result = await axios.post(http);
+  // console.log('api page',result.data);
+  return result.data;
+}

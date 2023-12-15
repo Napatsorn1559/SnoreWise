@@ -25,8 +25,6 @@ export default function LoginPage({ navigation }) {
     const [userId, setUserId] = useRecoilState(currentUserId);
     const [usernameR, setUsernameR] = useRecoilState(currentUsername);
 
-
-
     const handleLogin = async () => {
         try {
             const response = await requestLogin(username, password);
@@ -50,8 +48,6 @@ export default function LoginPage({ navigation }) {
             console.error("Login failed :", error.message);
         }
     };
-
-
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>

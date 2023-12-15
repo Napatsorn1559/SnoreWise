@@ -5,7 +5,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, PrivateValueStore } from '@react-navigation/native';
 import { MaterialIcons, Foundation, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
-import { RecoilRoot } from 'recoil';
+import { RecoilRoot, useRecoilValue} from 'recoil';
+import { totalNotification } from './RecoilState';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -67,7 +68,7 @@ const LoggedIn = () => {
               </View>
             )
           },
-          tabBarBadge: 3
+          tabBarBadge: useRecoilValue(totalNotification)
         }}
       />
     </Tab.Navigator>
