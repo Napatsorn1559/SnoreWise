@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "flex-end",
         marginBottom: "15%",
-        // marginBottom: "8it seems that both imge%",
+        
     },
     profileInfo: {
         alignItems: 'center',
