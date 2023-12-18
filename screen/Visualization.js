@@ -9,6 +9,7 @@ import bg from '../assets/wave2layer.png';
 //import recoil state
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { currentDate, currentUserId, totalCalls, totalSleeptime } from "../RecoilState";
+import { getDomain } from "../Api";
 //import axios for using api method
 import axios from "axios";
 //import audio fot soundplay
@@ -16,6 +17,7 @@ import { Audio } from "expo-av";
 
 
 export default function Visualization() {
+
   const uid = useRecoilValue(currentUserId);
   const selectedDate = useRecoilValue(currentDate);
   const [visualData, setVisualData] = React.useState([]);
@@ -28,22 +30,33 @@ export default function Visualization() {
 
     async function playSound() {
       console.log("playSound click");
-    if (isPlaying) {
-      await sound.stopAsync();
-      await sound.unloadAsync();
-    } else {
-      const newSound = new Audio.Sound();
-      await newSound.loadAsync({
-        uri: soundFileUri,
-      });
-      setSound(newSound);
-      await newSound.playAsync();
+      if (isPlaying) {
+        await sound.stopAsync();
+        await sound.unloadAsync();
+      } else {
+        console.log(soundFileUri);
+        const newSound = new Audio.Sound();
+        await newSound.loadAsync({
+          uri: soundFileUri,
+        });
+        setSound(newSound);
+        console.log('playing');
+        await newSound.playAsync();
+      }
+      setIsPlaying(!isPlaying);
     }
-    setIsPlaying(!isPlaying);
-  }
 
     useEffect(() => {
-      return sound ? () => sound.unloadAsync() : undefined;
+      if (sound) {
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.didJustFinish) {
+            setIsPlaying(false);
+          }
+        });
+        return () => {
+          sound.unloadAsync();
+        };
+      }
     }, [sound]);
 
     return (
@@ -67,9 +80,10 @@ export default function Visualization() {
 
       //fetch api
       const fetchData = async () => {
+        const API_DOMAIN = await getDomain();
         setVisualData([]);
         setChartData([]);
-        const http = 'http://Snorewise-env.eba-gqgjifdg.us-east-1.elasticbeanstalk.com/getpredict';
+        const http = `${API_DOMAIN}/getpredict`;
         let jsonPayload = {
           'user_id': uid,
           'date': postDate
@@ -85,6 +99,8 @@ export default function Visualization() {
 
             setVisualData([response.data.response]);
             setChartData(cleanChartData);
+
+            console.log(visualData);
           } else {
             alert('no recorded data');
           }
@@ -138,19 +154,28 @@ export default function Visualization() {
     },
   };
 
-  //function for calculate daration in minutes
   const calculateDuration = (timeStart, timeStop) => {
     const start = new Date(`1970-01-01T${timeStart}`);
     const stop = new Date(`1970-01-01T${timeStop}`);
     const durationInMilliseconds = stop - start;
-    const durationInMinutes = durationInMilliseconds / (1000 * 60);
-    return Math.round(durationInMinutes);
+    const durationInSeconds = durationInMilliseconds / 1000;
+
+    if (durationInSeconds === 0) {
+      return '0:00 mins';
+    }
+
+    const minutes = Math.floor(durationInSeconds / 60);
+    const seconds = Math.round(durationInSeconds % 60);
+    const formattedDuration = `${minutes}:${String(seconds).padStart(2, '0')} mins`;
+
+    return formattedDuration;
   };
+
 
   return (
     <ImageBackground source={bg} style={styles.container}>
       <View style={[styles.bglight, { height: 30, marginTop: 10, marginHorizontal: 10, flexDirection: 'row' }]}>
-        <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold', }}>
+        <Text style={{ color: 'yellow', fontSize: 16, fontWeight: 'bold', }}>
           {selectedDate ? selectedDate.toString().slice(0, -17) : 'None'}
         </Text>
       </View>
@@ -187,7 +212,7 @@ export default function Visualization() {
               <View style={{ flexDirection: 'row', alignItems: 'center', paddingBottom: 10, justifyContent: 'space-evenly' }}>
                 <Text style={{ color: 'yellow', fontSize: 20, fontWeight: 'bold' }}>{item.time_start}</Text>
                 <View>
-                  <Text style={{ color: 'white', fontSize: 15, fontWeight: '500' }}>duration {calculateDuration(item.time_start, item.time_stop)} mins</Text>
+                  <Text style={{ color: 'white', fontSize: 15, fontWeight: '500' }}>duration {calculateDuration(item.time_start, item.time_stop)}</Text>
                   <Text style={{ color: 'white', fontSize: 15, fontWeight: '500' }}>intensity {item.calls == null ? 0 : item.calls} times</Text>
                 </View>
                 <SoundPlayer soundFileUri={item.path} />

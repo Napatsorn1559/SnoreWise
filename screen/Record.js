@@ -22,11 +22,13 @@ import waveLine from '../assets/horizontalWaveLine.png'
 //import recoil state
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { currentDate, currentUserId } from '../RecoilState';
+import { getDomain } from "../Api";
+
 
 export default function App() {
     const [recording, setRecording] = React.useState();
     const [recordings, setRecordings] = React.useState([]);
-    const [startRecord, setStartRecord] = React.useState(new Date());
+    const [startRecord, setStartRecord] = React.useState();
     const [postedAudioFiles, setPostedAudioFiles] = React.useState([]);
     const userId = useRecoilValue(currentUserId);
 
@@ -86,9 +88,9 @@ export default function App() {
                 });
                 setRecording(recording);
 
-                //create start record time
-                // let startRec = new Date();
-                // setStartRecord(startRec);
+                // create start record time
+                let startRec = new Date();
+                setStartRecord(startRec);
             }
         } catch (err) { console.error('Failed to start recording', err) }
     }
@@ -138,8 +140,9 @@ export default function App() {
             console.log('audio already posted');
             return;
         };
+        const API_DOMAIN = await getDomain();
 
-        let url = 'http://Snorewise-env.eba-gqgjifdg.us-east-1.elasticbeanstalk.com/send-audio';
+        let url = `${API_DOMAIN}/send-audio`;
         let filename = uri.split("/").pop();
         let nameNoWav = filename.split(".")[0];
         //encode sound for post via api
@@ -162,7 +165,7 @@ export default function App() {
             name: `${userId}-${nameNoWav}.wav`,
             type: 'audio/wav',
         });
-        // console.log(data);
+        console.log(data);
 
 
         try {
@@ -208,22 +211,6 @@ export default function App() {
         }, 500));
     }
 
-    //funtion for test recording result
-    function getRecordingLines() {
-        return recordings.map((recordingLine, index) => {
-            return (
-                <View key={index} style={styles.row}>
-                    <Text style={styles.fill}>
-                        Recording #{index + 1} | {recordingLine.duration}
-                    </Text>
-                    <Button onPress={() => recordingLine.sound.replayAsync()} title="Play"></Button>
-                    <Button onPress={() => postAudio(recordingLine.file)} title="post"></Button>
-                    <Button onPress={() => Sharing.shareAsync(recordingLine.file)} title="share"></Button>
-                </View>
-            );
-        });
-    }
-
     return (
         <View style={{ flex: 1 }} >
             <ImageBackground style={styles.container} source={bg}>
@@ -237,7 +224,6 @@ export default function App() {
                 <Text style={styles.statusText}>
                     {recording ? 'stop record' : 'start record'}
                 </Text>
-                {/* {getRecordingLines()} */}
             </ImageBackground>
         </View>
     );

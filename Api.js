@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_DOMAIN = "http://Snorewise-env.eba-gqgjifdg.us-east-1.elasticbeanstalk.com"
+const API_DOMAIN = "http://snorewise.eba-4g3sbjav.us-east-1.elasticbeanstalk.com"
 
 function ApiDateFormat(date) {
   let createDate = new Date(date);
@@ -87,36 +87,42 @@ export const requestLogin = async (username, password) => {
   }
 }
 
-export const requestAudioUri = async (uid, selectDate) => {
-  let postDate = ApiDateFormat(selectDate);
+export const requestAudioUri = async (uid, start, end, type) => {
+  let postStart = ApiDateFormat(start);
+  let postEnd = ApiDateFormat(end);
+  let endpoint;
 
-  let http = `${API_DOMAIN}/getpredict`;
-  let jsonPayload = {
-    "user_id": uid,
-    'date': postDate
-  };
-
-  try {
-    const result = await axios.post(http, jsonPayload);
-    // console.log(result.data.response);
-    if (result.data.response.length > 0) {
-      //set data format
-      const modelResults = result.data.response.map(item => item.path);
-      // console.log(modelResults[0]); //mock up choosing first sound of the day
-      // const cleanChartData = modelResults.flat().filter(value => !isNaN(value) && isFinite(value));
-
-      return {
-        uri: modelResults[0]
-      };
-    } else {
-      alert('No Data');
-      return {
-        uri: 'none'
+  if (type == 'sound') {
+    endpoint = 'request-sound';
+    let http = `${API_DOMAIN}/${endpoint}?user_id=${uid}&start_date=${postStart}&end_date=${postEnd}`;
+    console.log(http);
+    try {
+      const result = await axios.get(http);
+      console.log('audio uri result', result.data.response);
+      if (result.data.response) {
+        return {
+          uri: result.data.response
+        };
+      } else {
+        alert('No Data');
       }
+    } catch (error) {
+      console.error(" requestAudioUri Error:", error.message);
     }
-  } catch (error) {
-    console.error(" requestAudioUri Error:", error.message);
+  } else {
+    endpoint = 'pdf';
+    let http = `${API_DOMAIN}/${endpoint}?user_id=${uid}&start_date=${postStart}&end_date=${postEnd}`;
+    console.log(http);
+    try {
+      return {
+        uri: http
+      };
+    } catch (error) {
+      console.error(" requestAudioUri (pdf) Error:", error.message);
+    }
+
   }
+
 }
 
 export const updateFactor = async (uid, selectDate, factorName, factorResult) => {
@@ -151,7 +157,7 @@ export const updateFactor = async (uid, selectDate, factorName, factorResult) =>
   try {
     const result = await axios.put(http, jsonPayload);
     // console.log(result.data);
-    if(result.data.error){
+    if (result.data.error) {
       alert('invalid date: the selected date have no record')
     }
   } catch (error) {
@@ -159,7 +165,7 @@ export const updateFactor = async (uid, selectDate, factorName, factorResult) =>
   }
 }
 
-export const requestNotification = async(uid) =>{
+export const requestNotification = async (uid) => {
   let http = `${API_DOMAIN}/notify/${uid}`;
 
   const result = await axios.post(http);

@@ -326,8 +326,8 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "flex-end",
-        //marginBottom: "15%",
-        marginBottom: "8it seems that both imge%",
+        marginBottom: "15%",
+        // marginBottom: "8it seems that both imge%",
     },
     profileInfo: {
         alignItems: 'center',
